@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>NBA Basketball School - Dashboard Oficial</title>
+    <title>NBA Basketball School - Dashboard Estratégico</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -21,8 +21,8 @@
         }
         .login-box {
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            padding: 2.5rem; border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);
-            text-align: center; max-width: 400px; width: 90%;
+            padding: 3rem; border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center; max-width: 450px; width: 90%;
         }
         .password-input {
             width: 100%; padding: 12px; margin-top: 20px; border-radius: 8px; border: none;
@@ -44,72 +44,72 @@
             <p class="text-[10px] opacity-60 uppercase tracking-widest mb-6">Acesso Restrito - Dashboard de Rede</p>
             <input type="password" id="pass-field" class="password-input" placeholder="Código de Acesso">
             <button id="btn-login" class="login-btn">Entrar</button>
-            <p id="error-msg">Senha incorreta. Verifique e tente novamente.</p>
-            <p id="loading-msg">Autenticando e carregando dados...</p>
+            <p id="error-msg">Código inválido ou erro de conexão com a planilha.</p>
+            <p id="loading-msg">Sincronizando dados com o Google Sheets...</p>
         </div>
-        <p class="mt-10 text-[10px] opacity-30 uppercase tracking-widest font-bold">Última atualização: 19/02/2026</p>
+        <p class="mt-10 text-[10px] opacity-30 uppercase tracking-widest font-bold">Atualização: 19/02/2026</p>
     </div>
 
     <div id="dashboard-content">
-        <header class="nba-blue text-white py-8 px-6 border-b-8 border-red-600">
+        <header class="nba-blue text-white py-10 px-6 border-b-8 border-red-600 shadow-xl">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
-                <div class="text-center md:text-left">
-                    <h1 class="text-3xl font-black italic tracking-tighter uppercase">NBA BASKETBALL SCHOOL</h1>
-                    <p class="opacity-80 font-medium tracking-widest uppercase text-[11px]">Gestão de Performance - 202 Unidades</p>
+                <div>
+                    <h1 class="text-4xl font-black italic tracking-tighter uppercase">NBA BASKETBALL SCHOOL</h1>
+                    <p class="opacity-80 font-medium tracking-widest uppercase text-sm">Dashboard Estratégico de Atendimento</p>
                 </div>
-                <div class="mt-4 md:mt-0 bg-white/10 p-3 rounded-xl border border-white/20 text-center">
-                    <p class="text-[9px] uppercase font-bold opacity-60">Status da Base</p>
-                    <p class="text-xs font-extrabold text-emerald-400">PLANILHA CONECTADA</p>
+                <div class="mt-4 md:mt-0 bg-white/10 p-4 rounded-xl border border-white/20 text-center">
+                    <p class="text-[10px] uppercase font-bold opacity-60">Status da Base</p>
+                    <p class="text-xs font-black text-emerald-400">PLANILHA CONECTADA</p>
                 </div>
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-6 py-10 space-y-10">
-            <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-6 rounded-2xl card-shadow border-l-8 border-emerald-500">
+        <main class="max-w-7xl mx-auto px-6 py-10 space-y-12">
+            <section class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="kpis">
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-emerald-500 card-shadow">
                     <p class="text-slate-400 text-[10px] font-bold uppercase">Saudáveis</p>
-                    <h3 class="text-4xl font-black text-emerald-600 mt-1" id="kpi-healthy">-</h3>
+                    <h3 class="text-4xl font-black text-emerald-600 mt-1" id="kpi-healthy">0</h3>
                     <p class="text-[9px] font-bold text-slate-300">Score ≥ 2.80</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl card-shadow border-l-8 border-blue-500">
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-blue-500 card-shadow">
                     <p class="text-slate-400 text-[10px] font-bold uppercase">Estáveis</p>
-                    <h3 class="text-4xl font-black text-blue-600 mt-1" id="kpi-satisfatory">-</h3>
+                    <h3 class="text-4xl font-black text-blue-600 mt-1" id="kpi-satisfatory">0</h3>
                     <p class="text-[9px] font-bold text-slate-300">2.30 - 2.79</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl card-shadow border-l-8 border-amber-500">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase">Alerta</p>
-                    <h3 class="text-4xl font-black text-amber-500 mt-1" id="kpi-warning">-</h3>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-amber-500 card-shadow">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase">Em Alerta</p>
+                    <h3 class="text-4xl font-black text-amber-500 mt-1" id="kpi-warning">0</h3>
                     <p class="text-[9px] font-bold text-slate-300">2.00 - 2.29</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl card-shadow border-l-8 border-red-500">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase">Críticas</p>
-                    <h3 class="text-4xl font-black text-red-600 mt-1" id="kpi-critical">-</h3>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-red-500 card-shadow">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase">Risco Crítico</p>
+                    <h3 class="text-4xl font-black text-red-600 mt-1" id="kpi-critical">0</h3>
                     <p class="text-[9px] font-bold text-slate-300">0.00 - 1.99</p>
                 </div>
             </section>
 
-            <section class="bg-white p-8 rounded-3xl card-shadow">
-                <h2 class="text-xl font-black text-slate-800 uppercase mb-8 italic border-b pb-4">Média por Critério Operacional</h2>
+            <section class="bg-white p-8 rounded-3xl card-shadow border border-slate-100">
+                <h2 class="text-2xl font-black text-slate-800 uppercase mb-8 italic border-b pb-4">Performance por Critério (Média Global)</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    <div class="h-[400px]"><canvas id="chart-criteria"></canvas></div>
+                    <div class="h-[450px]"><canvas id="chart-criteria"></canvas></div>
                     <div class="grid grid-cols-2 gap-3" id="grid-criteria"></div>
                 </div>
             </section>
 
             <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-white p-8 rounded-3xl card-shadow">
-                    <h3 class="text-lg font-bold mb-6 text-slate-700">Composição da Rede (%)</h3>
-                    <div class="h-[300px]"><canvas id="chart-doughnut"></canvas></div>
+                    <h3 class="text-xl font-bold mb-6 text-slate-700">Composição da Rede (%)</h3>
+                    <div class="h-[350px]"><canvas id="chart-doughnut"></canvas></div>
                 </div>
                 <div class="bg-white p-8 rounded-3xl card-shadow">
-                    <h3 class="text-lg font-bold mb-6 text-slate-700">Saúde por Gestor (GP)</h3>
-                    <div class="h-[300px]"><canvas id="chart-manager"></canvas></div>
+                    <h3 class="text-xl font-bold mb-6 text-slate-700">Saúde por Gestor (GP)</h3>
+                    <div class="h-[350px]"><canvas id="chart-manager"></canvas></div>
                 </div>
             </section>
 
             <section class="space-y-6">
                 <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-xl font-black text-slate-800 uppercase italic">Diagnóstico das Unidades (202)</h2>
+                    <h2 class="text-2xl font-black text-slate-800 uppercase italic">Diagnóstico das Unidades (202)</h2>
                     <div class="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
                         <input type="text" id="input-search" placeholder="Buscar unidade ou GP..." class="px-4 py-2 rounded-lg border border-slate-300 text-sm w-full md:w-64 outline-none focus:ring-2 focus:ring-blue-600">
                         <select id="select-filter" class="px-4 py-2 rounded-lg border border-slate-300 text-sm outline-none">
@@ -125,121 +125,138 @@
             </section>
         </main>
 
-        <footer class="bg-slate-900 text-white py-10 text-center">
-            <p class="text-[9px] opacity-40 font-bold uppercase tracking-widest italic">NBA Properties, Inc. | Relatório de Gestão 19/02/2026</p>
+        <footer class="bg-slate-900 text-white py-12 text-center border-t-8 border-red-600">
+            <p class="text-[10px] opacity-40 font-bold uppercase tracking-widest italic">NBA Properties, Inc. | Confidencial | Dados atualizados em 19/02/2026</p>
         </footer>
     </div>
 
     <script>
         const CONFIG = {
             CSV_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDFJ9sP_Kp-iAAgRQBUbJm1fzPVdFPiPgvMCc_iJL2VzJptbIfKg66_stnvNWJv2AgA5WAm8uPMD3Y/pub?gid=0&single=true&output=csv',
-            PASSWORD: 'Ts_240518',
-            CRIT_START: 3,
-            CRIT_END: 15
+            PASSWORD: 'Ts_240518'
         };
 
         let rawUnits = [];
         let criteriaStats = [];
 
-        // Inicialização
         document.getElementById('btn-login').addEventListener('click', handleLogin);
         document.getElementById('pass-field').addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
 
         async function handleLogin() {
             const typed = document.getElementById('pass-field').value;
-            const errorMsg = document.getElementById('error-msg');
-            const loadingMsg = document.getElementById('loading-msg');
-
             if (typed === CONFIG.PASSWORD) {
-                errorMsg.style.display = 'none';
-                loadingMsg.style.display = 'block';
+                document.getElementById('error-msg').style.display = 'none';
+                document.getElementById('loading-msg').style.display = 'block';
                 await startDashboard();
             } else {
-                errorMsg.style.display = 'block';
-                document.getElementById('pass-field').value = '';
+                document.getElementById('error-msg').style.display = 'block';
             }
         }
 
         async function startDashboard() {
             try {
                 const response = await fetch(CONFIG.CSV_URL);
-                const csvData = await response.text();
-                processData(csvData);
-
+                if (!response.ok) throw new Error();
+                const csvText = await response.text();
+                
+                processData(csvText);
+                
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
                 document.body.style.overflow = 'auto';
-
-                initCharts();
-                renderUnits();
+                
+                renderDashboard();
             } catch (err) {
-                console.error(err);
-                alert("Erro ao conectar com a planilha. Verifique sua conexão.");
+                document.getElementById('loading-msg').style.display = 'none';
+                document.getElementById('error-msg').innerText = "Erro ao conectar com a planilha. Verifique se o link CSV está correto.";
+                document.getElementById('error-msg').style.display = 'block';
             }
         }
 
         function processData(csv) {
-            // Regex para tratar CSV com nomes que podem conter vírgulas
-            const rows = csv.split(/\r?\n/).map(row => {
-                const matches = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-                return matches ? matches.map(m => m.replace(/^"|"$/g, '')) : [];
+            // Divide linhas respeitando quebras de linha dentro de aspas
+            const rows = csv.split(/\r?\n/).map(line => {
+                const fields = [];
+                let field = '', inQuotes = false;
+                for (let char of line) {
+                    if (char === '"') inQuotes = !inQuotes;
+                    else if (char === ',' && !inQuotes) { fields.push(field); field = ''; }
+                    else field += char;
+                }
+                fields.push(field);
+                return fields;
             });
 
             const headers = rows[0];
-            const dataRows = rows.slice(1, 203); // Limite de 202 unidades
+            const dataRows = rows.slice(1, 203); // As 202 unidades operacionais
 
-            let sums = new Array(13).fill(0);
+            const critIndices = [3,4,5,6,7,8,9,10,11,12,13,14,15]; // Índices dos 13 pilares
+            let critSums = new Array(13).fill(0);
 
             rawUnits = dataRows.filter(r => r.length > 5).map(row => {
-                let unitSum = 0;
-                let critCount = 0;
-
-                for(let i = CONFIG.CRIT_START; i <= CONFIG.CRIT_END; i++) {
-                    const val = parseFloat(row[i]) || 0;
-                    unitSum += val;
-                    sums[critCount] += val;
-                    critCount++;
-                }
-
-                const finalScore = unitSum / 13; // Recálculo dividindo por 13
+                let sum = 0;
+                critIndices.forEach((idx, i) => {
+                    const val = parseFloat(row[idx]) || 0;
+                    sum += val;
+                    critSums[i] += val;
+                });
                 
-                let rId = 'critical', rLabel = 'Risco Crítico';
-                if(finalScore >= 2.80) { rId = 'healthy'; rLabel = 'Saudável'; }
-                else if(finalScore >= 2.30) { rId = 'satisfatory'; rLabel = 'Estável'; }
-                else if(finalScore >= 2.00) { rId = 'warning'; rLabel = 'Alerta'; }
+                const score = sum / 13; // Divisor corrigido para 13 pilares
+                let rid = 'critical', rlabel = 'Risco Crítico';
+                if(score >= 2.80) { rid = 'healthy'; rlabel = 'Saudável'; }
+                else if(score >= 2.30) { rid = 'satisfatory'; rlabel = 'Estável'; }
+                else if(score >= 2.00) { rid = 'warning'; rlabel = 'Alerta'; }
 
                 return {
-                    name: row[0],
-                    gp: (row[1] || 'N/A').trim(),
-                    score: finalScore,
-                    risk_id: rId,
-                    risk_label: rLabel,
-                    diagnostico: finalScore >= 2.80 ? "Operação de excelência." : "Necessita acompanhamento técnico."
+                    name: row[0], gp: (row[1] || 'N/A').trim(),
+                    score: score, risk_id: rid, risk_label: rlabel,
+                    diag: score >= 2.80 ? "Operação de excelência técnica." : "Ponto de atenção em pilares específicos."
                 };
             });
 
-            criteriaStats = sums.map((s, i) => {
-                const avg = s / rawUnits.length;
+            criteriaStats = critIndices.map((idx, i) => {
+                const avg = critSums[i] / rawUnits.length;
                 let color = '#EF4444';
                 if(avg >= 2.80) color = '#10B981';
                 else if(avg >= 2.30) color = '#3B82F6';
                 else if(avg >= 2.00) color = '#F59E0B';
-                return { name: headers[i+3].split('-').pop().trim(), score: avg, color: color };
+                return { name: headers[idx].split('-').pop().trim(), score: avg, color: color };
             }).sort((a,b) => b.score - a.score);
         }
 
-        function initCharts() {
+        function renderDashboard() {
             updateKPIs();
-            renderCriteriaGrid();
-            
-            Chart.defaults.font.family = "'Montserrat', sans-serif";
+            renderCriteria();
+            initCharts();
+            renderUnits();
+        }
 
+        function updateKPIs() {
+            document.getElementById('kpi-healthy').innerText = rawUnits.filter(u => u.risk_id === 'healthy').length;
+            document.getElementById('kpi-satisfatory').innerText = rawUnits.filter(u => u.risk_id === 'satisfatory').length;
+            document.getElementById('kpi-warning').innerText = rawUnits.filter(u => u.risk_id === 'warning').length;
+            document.getElementById('kpi-critical').innerText = rawUnits.filter(u => u.risk_id === 'critical').length;
+        }
+
+        function renderCriteria() {
+            const grid = document.getElementById('grid-criteria');
+            grid.innerHTML = criteriaStats.map(c => `
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">${c.name}</span>
+                    <span class="text-xs font-black" style="color:${c.color}">${c.score.toFixed(2)}</span>
+                </div>
+            `).join('');
+        }
+
+        function initCharts() {
+            Chart.defaults.font.family = "'Montserrat', sans-serif";
+            
             // Bar Criteria
             new Chart(document.getElementById('chart-criteria'), {
                 type: 'bar',
                 data: {
                     labels: criteriaStats.map(s => s.name),
-                    datasets: [{ data: criteriaStats.map(s => s.score), backgroundColor: criteriaStats.map(s => s.color), borderRadius: 4 }]
+                    datasets: [{ data: criteriaStats.map(s => s.score), backgroundColor: criteriaStats.map(s => s.color), borderRadius: 5 }]
                 },
                 options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 3 } } }
             });
@@ -269,23 +286,6 @@
             });
         }
 
-        function updateKPIs() {
-            document.getElementById('kpi-healthy').innerText = rawUnits.filter(u => u.risk_id === 'healthy').length;
-            document.getElementById('kpi-satisfatory').innerText = rawUnits.filter(u => u.risk_id === 'satisfatory').length;
-            document.getElementById('kpi-warning').innerText = rawUnits.filter(u => u.risk_id === 'warning').length;
-            document.getElementById('kpi-critical').innerText = rawUnits.filter(u => u.risk_id === 'critical').length;
-        }
-
-        function renderCriteriaGrid() {
-            const grid = document.getElementById('grid-criteria');
-            grid.innerHTML = criteriaStats.map(c => `
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
-                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">${c.name}</span>
-                    <span class="text-xs font-black" style="color:${c.color}">${c.score.toFixed(2)}</span>
-                </div>
-            `).join('');
-        }
-
         function renderUnits() {
             const filter = document.getElementById('select-filter').value;
             const search = document.getElementById('input-search').value.toLowerCase();
@@ -296,16 +296,16 @@
                 .map(u => {
                     const color = u.risk_id === 'healthy' ? 'emerald' : u.risk_id === 'satisfatory' ? 'blue' : u.risk_id === 'warning' ? 'amber' : 'red';
                     return `
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 card-shadow flex flex-col justify-between">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 card-shadow flex flex-col justify-between">
                         <div>
                             <div class="flex justify-between items-start mb-4">
                                 <h4 class="font-bold text-[10px] uppercase text-slate-900 leading-tight">${u.name}</h4>
                                 <span class="text-[7px] px-2 py-0.5 rounded font-black uppercase bg-${color}-100 text-${color}-700 border border-${color}-200">${u.risk_label}</span>
                             </div>
-                            <p class="text-[9px] text-slate-400 mb-2 italic">GP: ${u.gp}</p>
-                            <p class="text-[9px] text-slate-600 bg-slate-50 p-2 rounded-lg border-l-2 border-slate-200 line-clamp-2 italic">"${u.diagnostico}"</p>
+                            <p class="text-[9px] text-slate-400 mb-2 italic">Gestor: ${u.gp}</p>
+                            <p class="text-[9px] text-slate-600 bg-slate-50 p-3 rounded-lg border-l-2 border-slate-200 italic line-clamp-2">"${u.diag}"</p>
                         </div>
-                        <div class="mt-4 flex justify-between items-center border-t pt-3">
+                        <div class="mt-4 flex justify-between items-center border-t pt-4">
                             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Global Score</span>
                             <span class="text-sm font-black text-slate-700">${u.score.toFixed(2)}</span>
                         </div>
