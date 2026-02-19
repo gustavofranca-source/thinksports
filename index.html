@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NBA Basketball School - Dashboard de Auditoria v5</title>
+    <title>NBA Basketball School - Dashboard v6</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #051c2c; margin: 0; }
         #dashboard-content { display: none; background-color: #F1F5F9; min-height: 100vh; }
-        h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
+        h1, h2 { font-family: 'Montserrat', sans-serif; }
         .nba-blue { background-color: #1D428A; }
         .nba-red { background-color: #C9082A; }
-        .card-shadow { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         #login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, #1d428a 0%, #051c2c 100%);
@@ -35,78 +33,67 @@
         }
         #modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 28, 44, 0.9); z-index: 10000; justify-content: center; align-items: center;
+            background: rgba(5, 28, 44, 0.95); z-index: 10000; justify-content: center; align-items: center;
         }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
-        <div class="login-box card-shadow">
-            <h1 class="text-3xl font-black italic tracking-tighter uppercase mb-2">NBA BASKETBALL SCHOOL</h1>
-            <p class="text-[10px] opacity-60 uppercase tracking-widest mb-6">Acesso Restrito - Monitoramento 2026</p>
+        <div class="login-box">
+            <h1 class="text-3xl font-black italic uppercase mb-2">NBA BASKETBALL SCHOOL</h1>
+            <p class="text-[10px] opacity-60 uppercase tracking-widest mb-6">Auditoria de Rede v2026</p>
             <input type="password" id="pass-field" class="password-input" placeholder="Código de Acesso">
-            <button id="btn-login" class="login-btn">Entrar</button>
-            <p id="error-msg" class="text-red-500 text-xs mt-4 hidden font-bold">Código incorreto ou erro de conexão.</p>
-            <p id="loading-msg" class="text-blue-400 text-xs mt-4 hidden font-bold italic">Sincronizando com Google Sheets...</p>
+            <button onclick="handleLogin()" class="login-btn">Entrar</button>
+            <p id="msg-status" class="text-xs mt-4 font-bold"></p>
         </div>
-        <p class="mt-10 text-[10px] opacity-30 uppercase tracking-widest font-bold">Data da Base: 19/02/2026</p>
     </div>
 
-    <div id="modal-overlay">
-        <div class="bg-white w-full max-w-2xl rounded-3xl p-8 card-shadow max-h-[90vh] overflow-y-auto m-4">
-            <div class="flex justify-between items-start mb-6 border-b pb-4">
-                <div>
-                    <h2 id="modal-unit-name" class="text-2xl font-black text-slate-900 uppercase italic">Unidade</h2>
-                    <p id="modal-unit-gp" class="text-sm text-slate-500 font-bold uppercase"></p>
-                </div>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-900 text-2xl font-bold">&times;</button>
+    <div id="modal-overlay" onclick="closeModal()">
+        <div class="bg-white w-full max-w-xl rounded-3xl p-8 m-4 overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h2 id="modal-title" class="text-xl font-black text-slate-900 uppercase italic"></h2>
+                <button onclick="closeModal()" class="text-slate-400 text-3xl">&times;</button>
             </div>
-            <div id="modal-criteria-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6"></div>
-            <div class="bg-slate-50 p-4 rounded-xl flex justify-between items-center border border-slate-200">
-                <span class="text-xs font-bold text-slate-500 uppercase">Score Global (Média 13 Critérios)</span>
-                <span id="modal-total-score" class="text-2xl font-black text-slate-900"></span>
+            <div id="modal-list" class="grid grid-cols-1 gap-2 mb-6"></div>
+            <div class="bg-slate-100 p-4 rounded-xl flex justify-between items-center">
+                <span class="text-[10px] font-bold text-slate-500 uppercase">Média Recalculada</span>
+                <span id="modal-score" class="text-xl font-black"></span>
             </div>
         </div>
     </div>
 
     <div id="dashboard-content">
         <header class="nba-blue text-white py-8 px-6 border-b-8 border-red-600">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-                <div>
-                    <h1 class="text-3xl font-black italic tracking-tighter uppercase">NBA BASKETBALL SCHOOL</h1>
-                    <p class="opacity-80 font-medium tracking-widest uppercase text-[11px]">Painel de Atendimento - 202 Unidades Ativas</p>
-                </div>
-                <div class="mt-4 md:mt-0 bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-lg border border-emerald-500/20 text-[10px] font-bold">
-                    ATUALIZAÇÃO AUTOMÁTICA ATIVA
-                </div>
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
+                <h1 class="text-2xl font-black italic uppercase">NBA BASKETBALL SCHOOL</h1>
+                <div class="bg-white/10 px-4 py-2 rounded-lg text-[10px] font-bold">FEVEREIRO 2026</div>
             </div>
         </header>
 
         <main class="max-w-7xl mx-auto px-6 py-10 space-y-10">
             <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-emerald-500 card-shadow">
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-emerald-500 shadow-sm">
                     <p class="text-slate-400 text-[10px] font-bold uppercase">Saudáveis</p>
-                    <h3 class="text-4xl font-black text-emerald-600 mt-1" id="kpi-healthy">0</h3>
+                    <h3 class="text-3xl font-black text-emerald-600 mt-1" id="kpi-h">0</h3>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-blue-500 card-shadow">
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-blue-500 shadow-sm">
                     <p class="text-slate-400 text-[10px] font-bold uppercase">Estáveis</p>
-                    <h3 class="text-4xl font-black text-blue-600 mt-1" id="kpi-satisfatory">0</h3>
+                    <h3 class="text-3xl font-black text-blue-600 mt-1" id="kpi-s">0</h3>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-amber-500 card-shadow">
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-amber-500 shadow-sm">
                     <p class="text-slate-400 text-[10px] font-bold uppercase">Alerta</p>
-                    <h3 class="text-4xl font-black text-amber-500 mt-1" id="kpi-warning">0</h3>
+                    <h3 class="text-3xl font-black text-amber-500 mt-1" id="kpi-w">0</h3>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-red-500 card-shadow">
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-red-500 shadow-sm">
                     <p class="text-slate-400 text-[10px] font-bold uppercase">Críticas</p>
-                    <h3 class="text-4xl font-black text-red-600 mt-1" id="kpi-critical">0</h3>
+                    <h3 class="text-3xl font-black text-red-600 mt-1" id="kpi-c">0</h3>
                 </div>
             </section>
 
             <section class="space-y-6">
-                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-xl font-black text-slate-800 uppercase italic">Diagnóstico Individual</h2>
-                    <input type="text" id="input-search" placeholder="Filtrar por nome ou gestor..." class="px-4 py-2 rounded-lg border border-slate-300 text-sm w-full md:w-80 outline-none focus:ring-2 focus:ring-blue-600 mt-4 md:mt-0">
+                <div class="flex bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                    <input type="text" id="input-search" oninput="renderUnits()" placeholder="Buscar unidade por nome..." class="w-full px-4 py-2 outline-none">
                 </div>
                 <div id="unit-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </section>
@@ -114,120 +101,99 @@
     </div>
 
     <script>
-        // Configurações Globais
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDFJ9sP_Kp-iAAgRQBUbJm1fzPVdFPiPgvMCc_iJL2VzJptbIfKg66_stnvNWJv2AgA5WAm8uPMD3Y/pub?gid=0&single=true&output=csv';
-        const ACCESS_CODE = 'Ts_240518';
+        const PASSWORD = 'Ts_240518';
         let unitsData = [];
-        let headersList = [];
-
-        // Inicialização Segura
-        window.addEventListener('load', () => {
-            const btn = document.getElementById('btn-login');
-            const passField = document.getElementById('pass-field');
-
-            btn.onclick = () => handleLogin();
-            passField.onkeypress = (e) => { if(e.key === 'Enter') handleLogin(); };
-        });
 
         async function handleLogin() {
             const typed = document.getElementById('pass-field').value;
-            const errorMsg = document.getElementById('error-msg');
-            const loadingMsg = document.getElementById('loading-msg');
+            const status = document.getElementById('msg-status');
+            
+            if(typed !== PASSWORD) {
+                status.innerText = "Código incorreto.";
+                status.style.color = "#ff4d4d";
+                return;
+            }
 
-            if (typed === ACCESS_CODE) {
-                errorMsg.classList.add('hidden');
-                loadingMsg.classList.remove('hidden');
+            status.innerText = "Carregando dados...";
+            status.style.color = "#60a5fa";
+
+            try {
+                const res = await fetch(CSV_URL);
+                if(!res.ok) throw new Error();
+                const text = await res.text();
                 
-                try {
-                    const response = await fetch(CSV_URL);
-                    if (!response.ok) throw new Error("Sheet Link Error");
-                    const csvText = await response.text();
+                // Processamento simples para evitar erros de sintaxe
+                const rows = text.split(/\r?\n/).map(l => l.split(','));
+                const headers = rows[0];
+                const units = rows.slice(1, 203);
+
+                unitsData = units.filter(r => r.length > 5).map(row => {
+                    let sum = 0;
+                    let det = [];
+                    for(let i=3; i<=15; i++) {
+                        const v = parseFloat(row[i]) || 0;
+                        sum += v;
+                        det.push({ l: headers[i].split('-').pop().trim(), s: v });
+                    }
+                    const final = sum / 13;
+                    let rid = 'critical';
+                    if(final >= 2.80) rid = 'healthy';
+                    else if(final >= 2.30) rid = 'satisfatory';
+                    else if(final >= 2.00) rid = 'warning';
                     
-                    parseCSVData(csvText);
-                    
-                    document.getElementById('login-overlay').style.display = 'none';
-                    document.getElementById('dashboard-content').style.display = 'block';
-                    document.body.style.overflow = 'auto';
-                    
-                    updateDisplay();
-                } catch (err) {
-                    loadingMsg.classList.add('hidden');
-                    errorMsg.innerText = "Erro ao carregar planilha. Verifique a publicação na web.";
-                    errorMsg.classList.remove('hidden');
-                }
-            } else {
-                errorMsg.innerText = "Código de acesso incorreto.";
-                errorMsg.classList.remove('hidden');
+                    return { name: row[0], gp: row[1], score: final, risk: rid, details: det };
+                });
+
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'block';
+                document.body.style.overflow = 'auto';
+                renderUnits();
+
+            } catch(e) {
+                status.innerText = "Erro ao conectar com a planilha.";
+                status.style.color = "#ff4d4d";
             }
         }
 
-        function parseCSVData(csv) {
-            const rows = csv.split(/\r?\n/).map(line => line.split(','));
-            headersList = rows[0];
-            const unitsRows = rows.slice(1, 203); // Foco nas 202 unidades
-
-            unitsData = unitsRows.filter(r => r.length > 5).map(row => {
-                let sum = 0;
-                let critDetails = [];
-                // Colunas 3 a 15 (13 critérios)
-                for(let i=3; i<=15; i++) {
-                    const val = parseFloat(row[i]) || 0;
-                    sum += val;
-                    critDetails.push({ label: headersList[i].split('-').pop().trim(), score: val });
-                }
-                const finalScore = sum / 13;
-                let rId = 'critical';
-                if(finalScore >= 2.80) rId = 'healthy';
-                else if(finalScore >= 2.30) rId = 'satisfatory';
-                else if(finalScore >= 2.00) rId = 'warning';
-
-                return { name: row[0], gp: row[1], score: finalScore, risk_id: rId, details: critDetails };
-            });
-        }
-
-        function updateDisplay() {
+        function renderUnits() {
             const search = document.getElementById('input-search').value.toLowerCase();
             const grid = document.getElementById('unit-grid');
             
-            // KPIs
             const counts = { healthy: 0, satisfatory: 0, warning: 0, critical: 0 };
-            unitsData.forEach(u => counts[u.risk_id]++);
+            unitsData.forEach(u => counts[u.risk]++);
             
-            document.getElementById('kpi-healthy').innerText = counts.healthy;
-            document.getElementById('kpi-satisfatory').innerText = counts.satisfatory;
-            document.getElementById('kpi-warning').innerText = counts.warning;
-            document.getElementById('kpi-critical').innerText = counts.critical;
+            document.getElementById('kpi-h').innerText = counts.healthy;
+            document.getElementById('kpi-s').innerText = counts.satisfatory;
+            document.getElementById('kpi-w').innerText = counts.warning;
+            document.getElementById('kpi-c').innerText = counts.critical;
 
             grid.innerHTML = unitsData
-                .filter(u => u.name.toLowerCase().includes(search) || u.gp.toLowerCase().includes(search))
-                .map((u, index) => `
-                    <div onclick="openDetails(${{index}})" class="bg-white p-6 rounded-2xl border border-slate-200 card-shadow cursor-pointer hover:border-blue-600 transition-all group">
+                .filter(u => u.name.toLowerCase().includes(search))
+                .map((u, i) => `
+                    <div onclick="openModal(${{i}})" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-blue-500 transition-all">
                         <div class="flex justify-between items-start mb-4">
-                            <h4 class="font-bold text-[10px] uppercase text-slate-900 group-hover:text-blue-700">${{u.name}}</h4>
-                            <span class="text-[7px] font-black uppercase text-blue-500 border border-blue-100 px-1 rounded">Ver Notas</span>
+                            <h4 class="font-bold text-[10px] uppercase text-slate-900">${{u.name}}</h4>
+                            <span class="text-[7px] font-black uppercase text-blue-500">Detalhes</span>
                         </div>
                         <div class="flex justify-between items-center border-t pt-4">
-                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Score Final</span>
+                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Score</span>
                             <span class="text-sm font-black text-slate-700">${{u.score.toFixed(2)}}</span>
                         </div>
                     </div>
                 `).join('');
         }
 
-        function openDetails(idx) {
+        function openModal(idx) {
             const u = unitsData[idx];
-            document.getElementById('modal-unit-name').innerText = u.name;
-            document.getElementById('modal-unit-gp').innerText = "Gestor: " + u.gp;
-            document.getElementById('modal-total-score').innerText = u.score.toFixed(2);
-            
-            const listContainer = document.getElementById('modal-criteria-list');
-            listContainer.innerHTML = u.details.map(d => `
-                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <span class="text-[10px] font-bold text-slate-500 uppercase">${{d.label}}</span>
-                    <span class="text-xs font-black ${{d.score >= 2.8 ? 'text-emerald-600' : d.score >= 2.3 ? 'text-blue-600' : 'text-red-600'}}">${{d.score.toFixed(1)}}</span>
+            document.getElementById('modal-title').innerText = u.name;
+            document.getElementById('modal-score').innerText = u.score.toFixed(2);
+            document.getElementById('modal-list').innerHTML = u.details.map(d => `
+                <div class="flex justify-between bg-slate-50 p-2 rounded-lg border border-slate-100 text-[10px]">
+                    <span class="font-bold text-slate-500 uppercase">${{d.l}}</span>
+                    <span class="font-black">${{d.s.toFixed(1)}}</span>
                 </div>
             `).join('');
-
             document.getElementById('modal-overlay').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
@@ -236,8 +202,6 @@
             document.getElementById('modal-overlay').style.display = 'none';
             document.body.style.overflow = 'auto';
         }
-
-        document.getElementById('input-search').oninput = () => updateDisplay();
     </script>
 </body>
 </html>
