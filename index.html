@@ -2,18 +2,17 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>NBA Basketball School - Dashboard Dinâmico</title>
+    <title>NBA Basketball School - Dashboard Oficial</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Roboto', sans-serif; background-color: #051c2c; margin: 0; overflow: hidden; }
-        #dashboard-content { display: none; background-color: #F1F5F9; height: 100vh; overflow-y: auto; }
+        body { font-family: 'Roboto', sans-serif; background-color: #051c2c; margin: 0; }
+        #dashboard-content { display: none; background-color: #F1F5F9; min-height: 100vh; }
         h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
         .nba-blue { background-color: #1D428A; }
         .nba-red { background-color: #C9082A; }
         .card-shadow { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        
         #login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, #1d428a 0%, #051c2c 100%);
@@ -22,7 +21,7 @@
         }
         .login-box {
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            padding: 3rem; border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2.5rem; border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);
             text-align: center; max-width: 400px; width: 90%;
         }
         .password-input {
@@ -33,261 +32,289 @@
             margin-top: 15px; width: 100%; padding: 12px; border-radius: 8px; border: none;
             background: #C9082A; color: white; font-weight: 800; cursor: pointer; text-transform: uppercase;
         }
-        #error-msg { color: #ff4d4d; font-size: 12px; margin-top: 10px; display: none; font-weight: bold; }
-        #loading-msg { color: #60a5fa; font-size: 12px; margin-top: 10px; display: none; }
+        #error-msg { color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none; font-weight: bold; }
+        #loading-msg { color: #60a5fa; font-size: 13px; margin-top: 15px; display: none; }
     </style>
 </head>
-<body class="text-slate-800">
+<body>
 
     <div id="login-overlay">
         <div class="login-box card-shadow">
             <h1 class="text-3xl font-black italic tracking-tighter uppercase mb-2">NBA BASKETBALL SCHOOL</h1>
-            <p class="text-xs opacity-60 uppercase tracking-widest mb-6">Acesso Restrito - Dashboard de Rede</p>
-            <input type="password" id="pass-field" class="password-input" placeholder="Digite o código de acesso">
-            <button onclick="checkPass()" class="login-btn">Entrar</button>
-            <p id="error-msg">Código incorreto.</p>
-            <p id="loading-msg">Carregando dados da planilha...</p>
+            <p class="text-[10px] opacity-60 uppercase tracking-widest mb-6">Acesso Restrito - Dashboard de Rede</p>
+            <input type="password" id="pass-field" class="password-input" placeholder="Código de Acesso">
+            <button id="btn-login" class="login-btn">Entrar</button>
+            <p id="error-msg">Senha incorreta. Verifique e tente novamente.</p>
+            <p id="loading-msg">Autenticando e carregando dados...</p>
         </div>
         <p class="mt-10 text-[10px] opacity-30 uppercase tracking-widest font-bold">Última atualização: 19/02/2026</p>
     </div>
 
     <div id="dashboard-content">
-        <header class="nba-blue text-white py-10 px-6 border-b-8 border-red-600">
+        <header class="nba-blue text-white py-8 px-6 border-b-8 border-red-600">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
-                <div>
-                    <h1 class="text-4xl font-black italic tracking-tighter uppercase">NBA BASKETBALL SCHOOL</h1>
-                    <p class="opacity-80 font-medium tracking-widest uppercase text-sm text-center md:text-left">Gestão de Performance de Rede (Real-Time)</p>
+                <div class="text-center md:text-left">
+                    <h1 class="text-3xl font-black italic tracking-tighter uppercase">NBA BASKETBALL SCHOOL</h1>
+                    <p class="opacity-80 font-medium tracking-widest uppercase text-[11px]">Gestão de Performance - 202 Unidades</p>
                 </div>
-                <div class="mt-4 md:mt-0 bg-white/10 p-4 rounded-xl border border-white/20 text-center">
-                    <p class="text-[10px] uppercase font-bold">Status da Planilha</p>
-                    <p class="text-sm font-extrabold tracking-widest text-emerald-400">CONECTADO</p>
+                <div class="mt-4 md:mt-0 bg-white/10 p-3 rounded-xl border border-white/20 text-center">
+                    <p class="text-[9px] uppercase font-bold opacity-60">Status da Base</p>
+                    <p class="text-xs font-extrabold text-emerald-400">PLANILHA CONECTADA</p>
                 </div>
             </div>
         </header>
 
         <main class="max-w-7xl mx-auto px-6 py-10 space-y-10">
-            <section class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="kpi-container">
+            <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-6 rounded-2xl card-shadow border-l-8 border-emerald-500">
                     <p class="text-slate-400 text-[10px] font-bold uppercase">Saudáveis</p>
-                    <h3 class="text-4xl font-black text-emerald-600 mt-2" id="count-healthy">-</h3>
-                    <p class="text-[9px] mt-1 font-bold">Score ≥ 2.80</p>
+                    <h3 class="text-4xl font-black text-emerald-600 mt-1" id="kpi-healthy">-</h3>
+                    <p class="text-[9px] font-bold text-slate-300">Score ≥ 2.80</p>
                 </div>
                 <div class="bg-white p-6 rounded-2xl card-shadow border-l-8 border-blue-500">
                     <p class="text-slate-400 text-[10px] font-bold uppercase">Estáveis</p>
-                    <h3 class="text-4xl font-black text-blue-600 mt-2" id="count-satisfatory">-</h3>
-                    <p class="text-[9px] mt-1 font-bold">2.30 - 2.79</p>
+                    <h3 class="text-4xl font-black text-blue-600 mt-1" id="kpi-satisfatory">-</h3>
+                    <p class="text-[9px] font-bold text-slate-300">2.30 - 2.79</p>
                 </div>
                 <div class="bg-white p-6 rounded-2xl card-shadow border-l-8 border-amber-500">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase">Em Alerta</p>
-                    <h3 class="text-4xl font-black text-amber-500 mt-2" id="count-warning">-</h3>
-                    <p class="text-[9px] mt-1 font-bold">2.00 - 2.29</p>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase">Alerta</p>
+                    <h3 class="text-4xl font-black text-amber-500 mt-1" id="kpi-warning">-</h3>
+                    <p class="text-[9px] font-bold text-slate-300">2.00 - 2.29</p>
                 </div>
                 <div class="bg-white p-6 rounded-2xl card-shadow border-l-8 border-red-500">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase">Risco Crítico</p>
-                    <h3 class="text-4xl font-black text-red-600 mt-2" id="count-critical">-</h3>
-                    <p class="text-[9px] mt-1 font-bold">0.00 - 1.99</p>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase">Críticas</p>
+                    <h3 class="text-4xl font-black text-red-600 mt-1" id="kpi-critical">-</h3>
+                    <p class="text-[9px] font-bold text-slate-300">0.00 - 1.99</p>
                 </div>
             </section>
 
             <section class="bg-white p-8 rounded-3xl card-shadow">
-                <h2 class="text-2xl font-black text-slate-800 uppercase mb-8 italic">Média Global por Critério</h2>
+                <h2 class="text-xl font-black text-slate-800 uppercase mb-8 italic border-b pb-4">Média por Critério Operacional</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    <div class="h-[400px]"><canvas id="critChart"></canvas></div>
-                    <div class="grid grid-cols-2 gap-3" id="critGrid"></div>
+                    <div class="h-[400px]"><canvas id="chart-criteria"></canvas></div>
+                    <div class="grid grid-cols-2 gap-3" id="grid-criteria"></div>
                 </div>
             </section>
 
             <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-white p-8 rounded-3xl card-shadow">
-                    <h3 class="text-xl font-bold mb-6">Composição da Rede (%)</h3>
-                    <div class="h-[300px]"><canvas id="riskDoughnut"></canvas></div>
+                    <h3 class="text-lg font-bold mb-6 text-slate-700">Composição da Rede (%)</h3>
+                    <div class="h-[300px]"><canvas id="chart-doughnut"></canvas></div>
                 </div>
                 <div class="bg-white p-8 rounded-3xl card-shadow">
-                    <h3 class="text-xl font-bold mb-6">Saúde por Gestor</h3>
-                    <div class="h-[300px]"><canvas id="mgrBar"></canvas></div>
+                    <h3 class="text-lg font-bold mb-6 text-slate-700">Saúde por Gestor (GP)</h3>
+                    <div class="h-[300px]"><canvas id="chart-manager"></canvas></div>
                 </div>
             </section>
 
             <section class="space-y-6">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <h2 class="text-2xl font-black text-slate-800 uppercase italic">Diagnóstico das Unidades</h2>
+                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-xl font-black text-slate-800 uppercase italic">Diagnóstico das Unidades (202)</h2>
                     <div class="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
-                        <input type="text" id="search" placeholder="Buscar unidade ou GP..." class="px-4 py-2 rounded-lg border border-slate-300 outline-none w-full">
-                        <select id="filter" class="px-4 py-2 rounded-lg border border-slate-300 outline-none">
-                            <option value="all">Todos</option>
+                        <input type="text" id="input-search" placeholder="Buscar unidade ou GP..." class="px-4 py-2 rounded-lg border border-slate-300 text-sm w-full md:w-64 outline-none focus:ring-2 focus:ring-blue-600">
+                        <select id="select-filter" class="px-4 py-2 rounded-lg border border-slate-300 text-sm outline-none">
+                            <option value="all">Todos os Status</option>
                             <option value="healthy">Saudáveis</option>
                             <option value="satisfatory">Estáveis</option>
                             <option value="warning">Alerta</option>
-                            <option value="critical">Crítico</option>
+                            <option value="critical">Críticas</option>
                         </select>
                     </div>
                 </div>
-                <div id="unitGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="unit-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </section>
         </main>
+
+        <footer class="bg-slate-900 text-white py-10 text-center">
+            <p class="text-[9px] opacity-40 font-bold uppercase tracking-widest italic">NBA Properties, Inc. | Relatório de Gestão 19/02/2026</p>
+        </footer>
     </div>
 
     <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDFJ9sP_Kp-iAAgRQBUbJm1fzPVdFPiPgvMCc_iJL2VzJptbIfKg66_stnvNWJv2AgA5WAm8uPMD3Y/pub?gid=0&single=true&output=csv';
-        let globalUnits = [];
-        let globalCriteria = [];
-        let charts = {};
+        const CONFIG = {
+            CSV_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDFJ9sP_Kp-iAAgRQBUbJm1fzPVdFPiPgvMCc_iJL2VzJptbIfKg66_stnvNWJv2AgA5WAm8uPMD3Y/pub?gid=0&single=true&output=csv',
+            PASSWORD: 'Ts_240518',
+            CRIT_START: 3,
+            CRIT_END: 15
+        };
 
-        async function checkPass() {
-            const pass = document.getElementById('pass-field').value;
-            if (pass === "Ts_240518") {
-                document.getElementById('error-msg').style.display = 'none';
-                document.getElementById('loading-msg').style.display = 'block';
-                await loadData();
+        let rawUnits = [];
+        let criteriaStats = [];
+
+        // Inicialização
+        document.getElementById('btn-login').addEventListener('click', handleLogin);
+        document.getElementById('pass-field').addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
+
+        async function handleLogin() {
+            const typed = document.getElementById('pass-field').value;
+            const errorMsg = document.getElementById('error-msg');
+            const loadingMsg = document.getElementById('loading-msg');
+
+            if (typed === CONFIG.PASSWORD) {
+                errorMsg.style.display = 'none';
+                loadingMsg.style.display = 'block';
+                await startDashboard();
             } else {
-                document.getElementById('error-msg').style.display = 'block';
+                errorMsg.style.display = 'block';
+                document.getElementById('pass-field').value = '';
             }
         }
 
-        async function loadData() {
+        async function startDashboard() {
             try {
-                const response = await fetch(CSV_URL);
-                const csvText = await response.text();
-                parseCSV(csvText);
-                
+                const response = await fetch(CONFIG.CSV_URL);
+                const csvData = await response.text();
+                processData(csvData);
+
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
                 document.body.style.overflow = 'auto';
-                
-                initDashboard();
-            } catch (e) {
-                alert("Erro ao carregar dados do Google Sheets. Verifique a conexão.");
-                console.error(e);
+
+                initCharts();
+                renderUnits();
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao conectar com a planilha. Verifique sua conexão.");
             }
         }
 
-        function parseCSV(text) {
-            const lines = text.split('\n').map(l => l.split(','));
-            const headers = lines[0];
-            const dataRows = lines.slice(1, 203); // Pega as 202 unidades
+        function processData(csv) {
+            // Regex para tratar CSV com nomes que podem conter vírgulas
+            const rows = csv.split(/\r?\n/).map(row => {
+                const matches = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+                return matches ? matches.map(m => m.replace(/^"|"$/g, '')) : [];
+            });
 
-            // Índices dos critérios: 3 a 15
-            const critIndices = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-            const critNames = critIndices.map(i => headers[i]);
+            const headers = rows[0];
+            const dataRows = rows.slice(1, 203); // Limite de 202 unidades
 
-            // Reset Critéria Totals
-            let critSums = critIndices.map(() => 0);
+            let sums = new Array(13).fill(0);
 
-            globalUnits = dataRows.map(row => {
-                let sum = 0;
-                critIndices.forEach((idx, i) => {
-                    const val = parseFloat(row[idx]) || 0;
-                    sum += val;
-                    critSums[i] += val;
-                });
+            rawUnits = dataRows.filter(r => r.length > 5).map(row => {
+                let unitSum = 0;
+                let critCount = 0;
+
+                for(let i = CONFIG.CRIT_START; i <= CONFIG.CRIT_END; i++) {
+                    const val = parseFloat(row[i]) || 0;
+                    unitSum += val;
+                    sums[critCount] += val;
+                    critCount++;
+                }
+
+                const finalScore = unitSum / 13; // Recálculo dividindo por 13
                 
-                const avg = sum / 13;
-                let riskId = 'critical', riskLabel = 'Risco Crítico';
-                if (avg >= 2.80) { riskId = 'healthy'; riskLabel = 'Saudáveis (boas)'; }
-                else if (avg >= 2.30) { riskId = 'satisfatory'; riskLabel = 'Estáveis (satisfatórias)'; }
-                else if (avg >= 2.00) { riskId = 'warning'; riskLabel = 'Em alerta (ruins)'; }
-
-                const low = critIndices.filter(idx => (parseFloat(row[idx]) || 0) < 2.30).map(idx => headers[idx].split(' - ').pop());
+                let rId = 'critical', rLabel = 'Risco Crítico';
+                if(finalScore >= 2.80) { rId = 'healthy'; rLabel = 'Saudável'; }
+                else if(finalScore >= 2.30) { rId = 'satisfatory'; rLabel = 'Estável'; }
+                else if(finalScore >= 2.00) { rId = 'warning'; rLabel = 'Alerta'; }
 
                 return {
-                    name: row[0], manager: (row[1] || 'N/A').trim(),
-                    score: avg, risk_id: riskId, risk_label: riskLabel,
-                    diag: low.length ? `Atenção em: ${{low.slice(0, 3).join(', ')}}` : "Desempenho consistente."
+                    name: row[0],
+                    gp: (row[1] || 'N/A').trim(),
+                    score: finalScore,
+                    risk_id: rId,
+                    risk_label: rLabel,
+                    diagnostico: finalScore >= 2.80 ? "Operação de excelência." : "Necessita acompanhamento técnico."
                 };
             });
 
-            globalCriteria = critNames.map((name, i) => {
-                const avg = critSums[i] / globalUnits.length;
+            criteriaStats = sums.map((s, i) => {
+                const avg = s / rawUnits.length;
                 let color = '#EF4444';
-                if (avg >= 2.80) color = '#10B981';
-                else if (avg >= 2.30) color = '#3B82F6';
-                else if (avg >= 2.00) color = '#F59E0B';
-                return { name: name.split(' - ').pop(), score: avg, color: color };
-            }).sort((a, b) => b.score - a.score);
+                if(avg >= 2.80) color = '#10B981';
+                else if(avg >= 2.30) color = '#3B82F6';
+                else if(avg >= 2.00) color = '#F59E0B';
+                return { name: headers[i+3].split('-').pop().trim(), score: avg, color: color };
+            }).sort((a,b) => b.score - a.score);
         }
 
-        function initDashboard() {
+        function initCharts() {
             updateKPIs();
-            renderCritGrid();
-            renderCharts();
-            renderUnitGrid();
-        }
-
-        function updateKPIs() {
-            const counts = { healthy: 0, satisfatory: 0, warning: 0, critical: 0 };
-            globalUnits.forEach(u => counts[u.risk_id]++);
-            document.getElementById('count-healthy').innerText = counts.healthy;
-            document.getElementById('count-satisfatory').innerText = counts.satisfatory;
-            document.getElementById('count-warning').innerText = counts.warning;
-            document.getElementById('count-critical').innerText = counts.critical;
-        }
-
-        function renderCritGrid() {
-            const grid = document.getElementById('critGrid');
-            grid.innerHTML = '';
-            globalCriteria.forEach(c => {
-                grid.innerHTML += `<div class="p-3 bg-slate-50 rounded-lg border border-slate-100 flex justify-between items-center"><span class="text-[9px] font-bold text-slate-500 uppercase">${{c.name}}</span><span class="text-xs font-black" style="color:${{c.color}}">${{c.score.toFixed(2)}}</span></div>`;
-            });
-        }
-
-        function renderUnitGrid(f='all', s='') {
-            const grid = document.getElementById('unitGrid');
-            grid.innerHTML = '';
-            globalUnits.filter(u => (f==='all' || u.risk_id===f) && (u.name.toLowerCase().includes(s.toLowerCase()) || u.manager.toLowerCase().includes(s.toLowerCase())))
-            .forEach(u => {
-                const colorClass = u.risk_id==='healthy'?'emerald':u.risk_id==='satisfatory'?'blue':u.risk_id==='warning'?'amber':'red';
-                grid.innerHTML += `
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 card-shadow flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start mb-4">
-                                <h4 class="font-bold text-[10px] uppercase text-slate-900">${{u.name}}</h4>
-                                <span class="text-[8px] px-2 py-0.5 rounded font-black uppercase bg-${{colorClass}}-100 text-${{colorClass}}-700 border border-${{colorClass}}-200">${{u.risk_label}}</span>
-                            </div>
-                            <p class="text-[10px] text-slate-400 mb-2 italic">GP: ${{u.manager}}</p>
-                            <p class="text-[10px] text-slate-600 bg-slate-50 p-2 rounded-lg border-l-2 border-slate-200">"${{u.diag}}"</p>
-                        </div>
-                        <div class="mt-4 flex justify-between items-center border-t pt-3">
-                            <span class="text-[9px] text-slate-400 font-bold uppercase">Score</span>
-                            <span class="text-sm font-black text-slate-700">${{u.score.toFixed(2)}}</span>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        function renderCharts() {
-            Chart.defaults.font.family = "'Montserrat', sans-serif";
+            renderCriteriaGrid();
             
-            // Crit Bar
-            new Chart(document.getElementById('critChart'), {
-                type: 'bar', data: { labels: globalCriteria.map(x=>x.name), datasets: [{ data: globalCriteria.map(x=>x.score), backgroundColor: globalCriteria.map(x=>x.color), borderRadius: 5 }] },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { min:0, max:3 } } }
+            Chart.defaults.font.family = "'Montserrat', sans-serif";
+
+            // Bar Criteria
+            new Chart(document.getElementById('chart-criteria'), {
+                type: 'bar',
+                data: {
+                    labels: criteriaStats.map(s => s.name),
+                    datasets: [{ data: criteriaStats.map(s => s.score), backgroundColor: criteriaStats.map(s => s.color), borderRadius: 4 }]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 3 } } }
             });
 
             // Doughnut
-            const counts = [0,0,0,0];
-            globalUnits.forEach(u => { if(u.risk_id==='healthy') counts[0]++; else if(u.risk_id==='satisfatory') counts[1]++; else if(u.risk_id==='warning') counts[2]++; else counts[3]++; });
-            new Chart(document.getElementById('riskDoughnut'), {
-                type: 'doughnut', data: { labels: ['Saudáveis', 'Estáveis', 'Alerta', 'Crítico'], datasets: [{ data: counts, backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'], borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } } }, cutout: '75%' }
+            const dist = ['healthy','satisfatory','warning','critical'].map(id => rawUnits.filter(u => u.risk_id === id).length);
+            new Chart(document.getElementById('chart-doughnut'), {
+                type: 'doughnut',
+                data: { labels: ['Saudáveis','Estáveis','Alerta','Críticas'], datasets: [{ data: dist, backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }, cutout: '75%' }
             });
 
             // Manager Bar
-            const mgrs = [...new Set(globalUnits.map(u => u.manager))].sort();
-            const datasets = [
-                { label: 'Saudáveis', data: mgrs.map(m => globalUnits.filter(u => u.manager===m && u.risk_id==='healthy').length), backgroundColor: '#10B981' },
-                { label: 'Estáveis', data: mgrs.map(m => globalUnits.filter(u => u.manager===m && u.risk_id==='satisfatory').length), backgroundColor: '#3B82F6' },
-                { label: 'Alerta', data: mgrs.map(m => globalUnits.filter(u => u.manager===m && u.risk_id==='warning').length), backgroundColor: '#F59E0B' },
-                { label: 'Crítico', data: mgrs.map(m => globalUnits.filter(u => u.manager===m && u.risk_id==='critical').length), backgroundColor: '#EF4444' }
-            ];
-            new Chart(document.getElementById('mgrBar'), {
-                type: 'bar', data: { labels: mgrs, datasets: datasets },
-                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } }, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10 } } } } }
+            const gps = [...new Set(rawUnits.map(u => u.gp))].sort();
+            new Chart(document.getElementById('chart-manager'), {
+                type: 'bar',
+                data: {
+                    labels: gps,
+                    datasets: [
+                        { label: 'Saudáveis', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'healthy').length), backgroundColor: '#10B981' },
+                        { label: 'Estáveis', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'satisfatory').length), backgroundColor: '#3B82F6' },
+                        { label: 'Alerta', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'warning').length), backgroundColor: '#F59E0B' },
+                        { label: 'Críticas', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'critical').length), backgroundColor: '#EF4444' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } }, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } } }
             });
         }
 
-        document.getElementById('search').addEventListener('input', e => renderUnitGrid(document.getElementById('filter').value, e.target.value));
-        document.getElementById('filter').addEventListener('change', e => renderUnitGrid(e.target.value, document.getElementById('search').value));
-        document.getElementById('pass-field').addEventListener('keypress', e => { if (e.key === 'Enter') checkPass(); });
+        function updateKPIs() {
+            document.getElementById('kpi-healthy').innerText = rawUnits.filter(u => u.risk_id === 'healthy').length;
+            document.getElementById('kpi-satisfatory').innerText = rawUnits.filter(u => u.risk_id === 'satisfatory').length;
+            document.getElementById('kpi-warning').innerText = rawUnits.filter(u => u.risk_id === 'warning').length;
+            document.getElementById('kpi-critical').innerText = rawUnits.filter(u => u.risk_id === 'critical').length;
+        }
+
+        function renderCriteriaGrid() {
+            const grid = document.getElementById('grid-criteria');
+            grid.innerHTML = criteriaStats.map(c => `
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">${c.name}</span>
+                    <span class="text-xs font-black" style="color:${c.color}">${c.score.toFixed(2)}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderUnits() {
+            const filter = document.getElementById('select-filter').value;
+            const search = document.getElementById('input-search').value.toLowerCase();
+            const grid = document.getElementById('unit-grid');
+
+            grid.innerHTML = rawUnits
+                .filter(u => (filter === 'all' || u.risk_id === filter) && (u.name.toLowerCase().includes(search) || u.gp.toLowerCase().includes(search)))
+                .map(u => {
+                    const color = u.risk_id === 'healthy' ? 'emerald' : u.risk_id === 'satisfatory' ? 'blue' : u.risk_id === 'warning' ? 'amber' : 'red';
+                    return `
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 card-shadow flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <h4 class="font-bold text-[10px] uppercase text-slate-900 leading-tight">${u.name}</h4>
+                                <span class="text-[7px] px-2 py-0.5 rounded font-black uppercase bg-${color}-100 text-${color}-700 border border-${color}-200">${u.risk_label}</span>
+                            </div>
+                            <p class="text-[9px] text-slate-400 mb-2 italic">GP: ${u.gp}</p>
+                            <p class="text-[9px] text-slate-600 bg-slate-50 p-2 rounded-lg border-l-2 border-slate-200 line-clamp-2 italic">"${u.diagnostico}"</p>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center border-t pt-3">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Global Score</span>
+                            <span class="text-sm font-black text-slate-700">${u.score.toFixed(2)}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+        }
+
+        document.getElementById('input-search').addEventListener('input', renderUnits);
+        document.getElementById('select-filter').addEventListener('change', renderUnits);
     </script>
 </body>
 </html>
