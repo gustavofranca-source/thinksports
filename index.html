@@ -2,16 +2,17 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NBA Basketball School - Dashboard v6</title>
+    <title>NBA Basketball School - Dashboard Estratégico</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #051c2c; margin: 0; }
         #dashboard-content { display: none; background-color: #F1F5F9; min-height: 100vh; }
-        h1, h2 { font-family: 'Montserrat', sans-serif; }
+        h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
         .nba-blue { background-color: #1D428A; }
         .nba-red { background-color: #C9082A; }
+        .card-shadow { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         #login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, #1d428a 0%, #051c2c 100%);
@@ -20,8 +21,8 @@
         }
         .login-box {
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            padding: 2.5rem; border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);
-            text-align: center; max-width: 400px; width: 90%;
+            padding: 3rem; border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center; max-width: 450px; width: 90%;
         }
         .password-input {
             width: 100%; padding: 12px; margin-top: 20px; border-radius: 8px; border: none;
@@ -31,177 +32,289 @@
             margin-top: 15px; width: 100%; padding: 12px; border-radius: 8px; border: none;
             background: #C9082A; color: white; font-weight: 800; cursor: pointer; text-transform: uppercase;
         }
-        #modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 28, 44, 0.95); z-index: 10000; justify-content: center; align-items: center;
-        }
+        #error-msg { color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none; font-weight: bold; }
+        #loading-msg { color: #60a5fa; font-size: 13px; margin-top: 15px; display: none; }
     </style>
 </head>
 <body>
 
     <div id="login-overlay">
-        <div class="login-box">
-            <h1 class="text-3xl font-black italic uppercase mb-2">NBA BASKETBALL SCHOOL</h1>
-            <p class="text-[10px] opacity-60 uppercase tracking-widest mb-6">Auditoria de Rede v2026</p>
+        <div class="login-box card-shadow">
+            <h1 class="text-3xl font-black italic tracking-tighter uppercase mb-2">NBA BASKETBALL SCHOOL</h1>
+            <p class="text-[10px] opacity-60 uppercase tracking-widest mb-6">Acesso Restrito - Dashboard de Rede</p>
             <input type="password" id="pass-field" class="password-input" placeholder="Código de Acesso">
-            <button onclick="handleLogin()" class="login-btn">Entrar</button>
-            <p id="msg-status" class="text-xs mt-4 font-bold"></p>
+            <button id="btn-login" class="login-btn">Entrar</button>
+            <p id="error-msg">Código inválido ou erro de conexão com a planilha.</p>
+            <p id="loading-msg">Sincronizando dados com o Google Sheets...</p>
         </div>
-    </div>
-
-    <div id="modal-overlay" onclick="closeModal()">
-        <div class="bg-white w-full max-w-xl rounded-3xl p-8 m-4 overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-6 border-b pb-4">
-                <h2 id="modal-title" class="text-xl font-black text-slate-900 uppercase italic"></h2>
-                <button onclick="closeModal()" class="text-slate-400 text-3xl">&times;</button>
-            </div>
-            <div id="modal-list" class="grid grid-cols-1 gap-2 mb-6"></div>
-            <div class="bg-slate-100 p-4 rounded-xl flex justify-between items-center">
-                <span class="text-[10px] font-bold text-slate-500 uppercase">Média Recalculada</span>
-                <span id="modal-score" class="text-xl font-black"></span>
-            </div>
-        </div>
+        <p class="mt-10 text-[10px] opacity-30 uppercase tracking-widest font-bold">Atualização: 19/02/2026</p>
     </div>
 
     <div id="dashboard-content">
-        <header class="nba-blue text-white py-8 px-6 border-b-8 border-red-600">
+        <header class="nba-blue text-white py-10 px-6 border-b-8 border-red-600 shadow-xl">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
-                <h1 class="text-2xl font-black italic uppercase">NBA BASKETBALL SCHOOL</h1>
-                <div class="bg-white/10 px-4 py-2 rounded-lg text-[10px] font-bold">FEVEREIRO 2026</div>
+                <div>
+                    <h1 class="text-4xl font-black italic tracking-tighter uppercase">NBA BASKETBALL SCHOOL</h1>
+                    <p class="opacity-80 font-medium tracking-widest uppercase text-sm">Dashboard Estratégico de Atendimento</p>
+                </div>
+                <div class="mt-4 md:mt-0 bg-white/10 p-4 rounded-xl border border-white/20 text-center">
+                    <p class="text-[10px] uppercase font-bold opacity-60">Status da Base</p>
+                    <p class="text-xs font-black text-emerald-400">PLANILHA CONECTADA</p>
+                </div>
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-6 py-10 space-y-10">
-            <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-emerald-500 shadow-sm">
+        <main class="max-w-7xl mx-auto px-6 py-10 space-y-12">
+            <section class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="kpis">
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-emerald-500 card-shadow">
                     <p class="text-slate-400 text-[10px] font-bold uppercase">Saudáveis</p>
-                    <h3 class="text-3xl font-black text-emerald-600 mt-1" id="kpi-h">0</h3>
+                    <h3 class="text-4xl font-black text-emerald-600 mt-1" id="kpi-healthy">0</h3>
+                    <p class="text-[9px] font-bold text-slate-300">Score ≥ 2.80</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-blue-500 shadow-sm">
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-blue-500 card-shadow">
                     <p class="text-slate-400 text-[10px] font-bold uppercase">Estáveis</p>
-                    <h3 class="text-3xl font-black text-blue-600 mt-1" id="kpi-s">0</h3>
+                    <h3 class="text-4xl font-black text-blue-600 mt-1" id="kpi-satisfatory">0</h3>
+                    <p class="text-[9px] font-bold text-slate-300">2.30 - 2.79</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-amber-500 shadow-sm">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase">Alerta</p>
-                    <h3 class="text-3xl font-black text-amber-500 mt-1" id="kpi-w">0</h3>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-amber-500 card-shadow">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase">Em Alerta</p>
+                    <h3 class="text-4xl font-black text-amber-500 mt-1" id="kpi-warning">0</h3>
+                    <p class="text-[9px] font-bold text-slate-300">2.00 - 2.29</p>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-red-500 shadow-sm">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase">Críticas</p>
-                    <h3 class="text-3xl font-black text-red-600 mt-1" id="kpi-c">0</h3>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-red-500 card-shadow">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase">Risco Crítico</p>
+                    <h3 class="text-4xl font-black text-red-600 mt-1" id="kpi-critical">0</h3>
+                    <p class="text-[9px] font-bold text-slate-300">0.00 - 1.99</p>
+                </div>
+            </section>
+
+            <section class="bg-white p-8 rounded-3xl card-shadow border border-slate-100">
+                <h2 class="text-2xl font-black text-slate-800 uppercase mb-8 italic border-b pb-4">Performance por Critério (Média Global)</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div class="h-[450px]"><canvas id="chart-criteria"></canvas></div>
+                    <div class="grid grid-cols-2 gap-3" id="grid-criteria"></div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-3xl card-shadow">
+                    <h3 class="text-xl font-bold mb-6 text-slate-700">Composição da Rede (%)</h3>
+                    <div class="h-[350px]"><canvas id="chart-doughnut"></canvas></div>
+                </div>
+                <div class="bg-white p-8 rounded-3xl card-shadow">
+                    <h3 class="text-xl font-bold mb-6 text-slate-700">Saúde por Gestor (GP)</h3>
+                    <div class="h-[350px]"><canvas id="chart-manager"></canvas></div>
                 </div>
             </section>
 
             <section class="space-y-6">
-                <div class="flex bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                    <input type="text" id="input-search" oninput="renderUnits()" placeholder="Buscar unidade por nome..." class="w-full px-4 py-2 outline-none">
+                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-2xl font-black text-slate-800 uppercase italic">Diagnóstico das Unidades (202)</h2>
+                    <div class="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
+                        <input type="text" id="input-search" placeholder="Buscar unidade ou GP..." class="px-4 py-2 rounded-lg border border-slate-300 text-sm w-full md:w-64 outline-none focus:ring-2 focus:ring-blue-600">
+                        <select id="select-filter" class="px-4 py-2 rounded-lg border border-slate-300 text-sm outline-none">
+                            <option value="all">Todos os Status</option>
+                            <option value="healthy">Saudáveis</option>
+                            <option value="satisfatory">Estáveis</option>
+                            <option value="warning">Alerta</option>
+                            <option value="critical">Críticas</option>
+                        </select>
+                    </div>
                 </div>
                 <div id="unit-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </section>
         </main>
+
+        <footer class="bg-slate-900 text-white py-12 text-center border-t-8 border-red-600">
+            <p class="text-[10px] opacity-40 font-bold uppercase tracking-widest italic">NBA Properties, Inc. | Confidencial | Dados atualizados em 19/02/2026</p>
+        </footer>
     </div>
 
     <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDFJ9sP_Kp-iAAgRQBUbJm1fzPVdFPiPgvMCc_iJL2VzJptbIfKg66_stnvNWJv2AgA5WAm8uPMD3Y/pub?gid=0&single=true&output=csv';
-        const PASSWORD = 'Ts_240518';
-        let unitsData = [];
+        const CONFIG = {
+            CSV_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDFJ9sP_Kp-iAAgRQBUbJm1fzPVdFPiPgvMCc_iJL2VzJptbIfKg66_stnvNWJv2AgA5WAm8uPMD3Y/pub?gid=0&single=true&output=csv',
+            PASSWORD: 'Ts_240518'
+        };
+
+        let rawUnits = [];
+        let criteriaStats = [];
+
+        document.getElementById('btn-login').addEventListener('click', handleLogin);
+        document.getElementById('pass-field').addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
 
         async function handleLogin() {
             const typed = document.getElementById('pass-field').value;
-            const status = document.getElementById('msg-status');
-            
-            if(typed !== PASSWORD) {
-                status.innerText = "Código incorreto.";
-                status.style.color = "#ff4d4d";
-                return;
+            if (typed === CONFIG.PASSWORD) {
+                document.getElementById('error-msg').style.display = 'none';
+                document.getElementById('loading-msg').style.display = 'block';
+                await startDashboard();
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
             }
+        }
 
-            status.innerText = "Carregando dados...";
-            status.style.color = "#60a5fa";
-
+        async function startDashboard() {
             try {
-                const res = await fetch(CSV_URL);
-                if(!res.ok) throw new Error();
-                const text = await res.text();
+                const response = await fetch(CONFIG.CSV_URL);
+                if (!response.ok) throw new Error();
+                const csvText = await response.text();
                 
-                // Processamento simples para evitar erros de sintaxe
-                const rows = text.split(/\r?\n/).map(l => l.split(','));
-                const headers = rows[0];
-                const units = rows.slice(1, 203);
-
-                unitsData = units.filter(r => r.length > 5).map(row => {
-                    let sum = 0;
-                    let det = [];
-                    for(let i=3; i<=15; i++) {
-                        const v = parseFloat(row[i]) || 0;
-                        sum += v;
-                        det.push({ l: headers[i].split('-').pop().trim(), s: v });
-                    }
-                    const final = sum / 13;
-                    let rid = 'critical';
-                    if(final >= 2.80) rid = 'healthy';
-                    else if(final >= 2.30) rid = 'satisfatory';
-                    else if(final >= 2.00) rid = 'warning';
-                    
-                    return { name: row[0], gp: row[1], score: final, risk: rid, details: det };
-                });
-
+                processData(csvText);
+                
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
                 document.body.style.overflow = 'auto';
-                renderUnits();
-
-            } catch(e) {
-                status.innerText = "Erro ao conectar com a planilha.";
-                status.style.color = "#ff4d4d";
+                
+                renderDashboard();
+            } catch (err) {
+                document.getElementById('loading-msg').style.display = 'none';
+                document.getElementById('error-msg').innerText = "Erro ao conectar com a planilha. Verifique se o link CSV está correto.";
+                document.getElementById('error-msg').style.display = 'block';
             }
         }
 
-        function renderUnits() {
-            const search = document.getElementById('input-search').value.toLowerCase();
-            const grid = document.getElementById('unit-grid');
-            
-            const counts = { healthy: 0, satisfatory: 0, warning: 0, critical: 0 };
-            unitsData.forEach(u => counts[u.risk]++);
-            
-            document.getElementById('kpi-h').innerText = counts.healthy;
-            document.getElementById('kpi-s').innerText = counts.satisfatory;
-            document.getElementById('kpi-w').innerText = counts.warning;
-            document.getElementById('kpi-c').innerText = counts.critical;
+        function processData(csv) {
+            // Divide linhas respeitando quebras de linha dentro de aspas
+            const rows = csv.split(/\r?\n/).map(line => {
+                const fields = [];
+                let field = '', inQuotes = false;
+                for (let char of line) {
+                    if (char === '"') inQuotes = !inQuotes;
+                    else if (char === ',' && !inQuotes) { fields.push(field); field = ''; }
+                    else field += char;
+                }
+                fields.push(field);
+                return fields;
+            });
 
-            grid.innerHTML = unitsData
-                .filter(u => u.name.toLowerCase().includes(search))
-                .map((u, i) => `
-                    <div onclick="openModal(${{i}})" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-blue-500 transition-all">
-                        <div class="flex justify-between items-start mb-4">
-                            <h4 class="font-bold text-[10px] uppercase text-slate-900">${{u.name}}</h4>
-                            <span class="text-[7px] font-black uppercase text-blue-500">Detalhes</span>
-                        </div>
-                        <div class="flex justify-between items-center border-t pt-4">
-                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Score</span>
-                            <span class="text-sm font-black text-slate-700">${{u.score.toFixed(2)}}</span>
-                        </div>
-                    </div>
-                `).join('');
+            const headers = rows[0];
+            const dataRows = rows.slice(1, 203); // As 202 unidades operacionais
+
+            const critIndices = [3,4,5,6,7,8,9,10,11,12,13,14,15]; // Índices dos 13 pilares
+            let critSums = new Array(13).fill(0);
+
+            rawUnits = dataRows.filter(r => r.length > 5).map(row => {
+                let sum = 0;
+                critIndices.forEach((idx, i) => {
+                    const val = parseFloat(row[idx]) || 0;
+                    sum += val;
+                    critSums[i] += val;
+                });
+                
+                const score = sum / 13; // Divisor corrigido para 13 pilares
+                let rid = 'critical', rlabel = 'Risco Crítico';
+                if(score >= 2.80) { rid = 'healthy'; rlabel = 'Saudável'; }
+                else if(score >= 2.30) { rid = 'satisfatory'; rlabel = 'Estável'; }
+                else if(score >= 2.00) { rid = 'warning'; rlabel = 'Alerta'; }
+
+                return {
+                    name: row[0], gp: (row[1] || 'N/A').trim(),
+                    score: score, risk_id: rid, risk_label: rlabel,
+                    diag: score >= 2.80 ? "Operação de excelência técnica." : "Ponto de atenção em pilares específicos."
+                };
+            });
+
+            criteriaStats = critIndices.map((idx, i) => {
+                const avg = critSums[i] / rawUnits.length;
+                let color = '#EF4444';
+                if(avg >= 2.80) color = '#10B981';
+                else if(avg >= 2.30) color = '#3B82F6';
+                else if(avg >= 2.00) color = '#F59E0B';
+                return { name: headers[idx].split('-').pop().trim(), score: avg, color: color };
+            }).sort((a,b) => b.score - a.score);
         }
 
-        function openModal(idx) {
-            const u = unitsData[idx];
-            document.getElementById('modal-title').innerText = u.name;
-            document.getElementById('modal-score').innerText = u.score.toFixed(2);
-            document.getElementById('modal-list').innerHTML = u.details.map(d => `
-                <div class="flex justify-between bg-slate-50 p-2 rounded-lg border border-slate-100 text-[10px]">
-                    <span class="font-bold text-slate-500 uppercase">${{d.l}}</span>
-                    <span class="font-black">${{d.s.toFixed(1)}}</span>
+        function renderDashboard() {
+            updateKPIs();
+            renderCriteria();
+            initCharts();
+            renderUnits();
+        }
+
+        function updateKPIs() {
+            document.getElementById('kpi-healthy').innerText = rawUnits.filter(u => u.risk_id === 'healthy').length;
+            document.getElementById('kpi-satisfatory').innerText = rawUnits.filter(u => u.risk_id === 'satisfatory').length;
+            document.getElementById('kpi-warning').innerText = rawUnits.filter(u => u.risk_id === 'warning').length;
+            document.getElementById('kpi-critical').innerText = rawUnits.filter(u => u.risk_id === 'critical').length;
+        }
+
+        function renderCriteria() {
+            const grid = document.getElementById('grid-criteria');
+            grid.innerHTML = criteriaStats.map(c => `
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
+                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">${c.name}</span>
+                    <span class="text-xs font-black" style="color:${c.color}">${c.score.toFixed(2)}</span>
                 </div>
             `).join('');
-            document.getElementById('modal-overlay').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
         }
 
-        function closeModal() {
-            document.getElementById('modal-overlay').style.display = 'none';
-            document.body.style.overflow = 'auto';
+        function initCharts() {
+            Chart.defaults.font.family = "'Montserrat', sans-serif";
+            
+            // Bar Criteria
+            new Chart(document.getElementById('chart-criteria'), {
+                type: 'bar',
+                data: {
+                    labels: criteriaStats.map(s => s.name),
+                    datasets: [{ data: criteriaStats.map(s => s.score), backgroundColor: criteriaStats.map(s => s.color), borderRadius: 5 }]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 3 } } }
+            });
+
+            // Doughnut
+            const dist = ['healthy','satisfatory','warning','critical'].map(id => rawUnits.filter(u => u.risk_id === id).length);
+            new Chart(document.getElementById('chart-doughnut'), {
+                type: 'doughnut',
+                data: { labels: ['Saudáveis','Estáveis','Alerta','Críticas'], datasets: [{ data: dist, backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }, cutout: '75%' }
+            });
+
+            // Manager Bar
+            const gps = [...new Set(rawUnits.map(u => u.gp))].sort();
+            new Chart(document.getElementById('chart-manager'), {
+                type: 'bar',
+                data: {
+                    labels: gps,
+                    datasets: [
+                        { label: 'Saudáveis', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'healthy').length), backgroundColor: '#10B981' },
+                        { label: 'Estáveis', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'satisfatory').length), backgroundColor: '#3B82F6' },
+                        { label: 'Alerta', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'warning').length), backgroundColor: '#F59E0B' },
+                        { label: 'Críticas', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'critical').length), backgroundColor: '#EF4444' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } }, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } } }
+            });
         }
+
+        function renderUnits() {
+            const filter = document.getElementById('select-filter').value;
+            const search = document.getElementById('input-search').value.toLowerCase();
+            const grid = document.getElementById('unit-grid');
+
+            grid.innerHTML = rawUnits
+                .filter(u => (filter === 'all' || u.risk_id === filter) && (u.name.toLowerCase().includes(search) || u.gp.toLowerCase().includes(search)))
+                .map(u => {
+                    const color = u.risk_id === 'healthy' ? 'emerald' : u.risk_id === 'satisfatory' ? 'blue' : u.risk_id === 'warning' ? 'amber' : 'red';
+                    return `
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 card-shadow flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <h4 class="font-bold text-[10px] uppercase text-slate-900 leading-tight">${u.name}</h4>
+                                <span class="text-[7px] px-2 py-0.5 rounded font-black uppercase bg-${color}-100 text-${color}-700 border border-${color}-200">${u.risk_label}</span>
+                            </div>
+                            <p class="text-[9px] text-slate-400 mb-2 italic">Gestor: ${u.gp}</p>
+                            <p class="text-[9px] text-slate-600 bg-slate-50 p-3 rounded-lg border-l-2 border-slate-200 italic line-clamp-2">"${u.diag}"</p>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center border-t pt-4">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Global Score</span>
+                            <span class="text-sm font-black text-slate-700">${u.score.toFixed(2)}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+        }
+
+        document.getElementById('input-search').addEventListener('input', renderUnits);
+        document.getElementById('select-filter').addEventListener('change', renderUnits);
     </script>
 </body>
 </html>
