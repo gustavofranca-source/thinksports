@@ -2,288 +2,492 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>NBA Basketball School - Dashboard Estratégico</title>
+    <title>NBA Basketball School - Centro de Comando</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Roboto', sans-serif; background-color: #051c2c; margin: 0; }
-        #dashboard-content { display: none; background-color: #F1F5F9; min-height: 100vh; }
+        body { font-family: 'Roboto', sans-serif; background-color: #051c2c; margin: 0; overflow: hidden; }
         h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
+        
         .nba-blue { background-color: #1D428A; }
         .nba-red { background-color: #C9082A; }
-        .card-shadow { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .card-shadow { box-shadow: 0 10px 30px -5px rgba(0,0,0,0.5); }
+        
         #login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, #1d428a 0%, #051c2c 100%);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             z-index: 9999; color: white;
         }
-        .login-box {
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            padding: 3rem; border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.2);
-            text-align: center; max-width: 450px; width: 90%;
-        }
-        .password-input {
-            width: 100%; padding: 12px; margin-top: 20px; border-radius: 8px; border: none;
-            background: white; color: #051c2c; font-weight: bold; text-align: center; outline: none;
-        }
-        .login-btn {
-            margin-top: 15px; width: 100%; padding: 12px; border-radius: 8px; border: none;
-            background: #C9082A; color: white; font-weight: 800; cursor: pointer; text-transform: uppercase;
-        }
-        #error-msg { color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none; font-weight: bold; }
-        #loading-msg { color: #60a5fa; font-size: 13px; margin-top: 15px; display: none; }
 
-        /* Estilo do Modal de Detalhes */
+        .app-container { display: flex; height: 100vh; width: 100vw; }
+        .sidebar { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); }
+        .main-content { flex-grow: 1; overflow-y: auto; background-color: #051c2c; }
+
+        .menu-item {
+            padding: 1rem 1.5rem;
+            color: rgba(255,255,255,0.4);
+            cursor: pointer;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .menu-item.active { 
+            background: rgba(255,255,255,0.1); 
+            color: white; 
+            border-left-color: #C9082A; 
+        }
+
         #modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 28, 44, 0.95); z-index: 10000; justify-content: center; align-items: center;
+            background: rgba(0, 0, 0, 0.9); z-index: 10000; justify-content: center; align-items: center;
         }
+
+        .main-content::-webkit-scrollbar { width: 8px; }
+        .main-content::-webkit-scrollbar-track { background: #051c2c; }
+        .main-content::-webkit-scrollbar-thumb { background: #1D428A; border-radius: 10px; }
+        
+        .methodology-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .section-divider { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
+    <!-- LOGIN -->
     <div id="login-overlay">
-        <div class="login-box card-shadow">
-            <h1 class="text-3xl font-black italic tracking-tighter uppercase mb-2">NBA BASKETBALL SCHOOL</h1>
-            <p class="text-[10px] opacity-60 uppercase tracking-widest mb-6">Acesso Restrito - Dashboard de Rede</p>
-            <input type="password" id="pass-field" class="password-input" placeholder="Código de Acesso">
-            <button id="btn-login" class="login-btn">Entrar</button>
-            <p id="error-msg">Código inválido ou erro de conexão com a planilha.</p>
-            <p id="loading-msg">Sincronizando dados com o Google Sheets...</p>
+        <div class="bg-white/10 backdrop-blur-md p-10 rounded-3xl border border-white/20 text-center max-w-sm w-full card-shadow">
+            <img src="https://static.cdnlogo.com/logos/n/84/nba.png" alt="NBA Logo" class="w-12 mx-auto mb-6">
+            <h1 class="text-2xl font-black italic uppercase mb-2 leading-none">NBA SCHOOL</h1>
+            <p class="text-[9px] opacity-60 uppercase mb-8 tracking-[0.2em]">Integrated Management Hub</p>
+            <input type="password" id="pass-field" class="w-full p-3 rounded-lg bg-white text-slate-900 font-bold text-center outline-none mb-4" placeholder="CÓDIGO DE ACESSO">
+            <button onclick="handleLogin()" class="w-full p-3 nba-red text-white font-black rounded-lg uppercase hover:brightness-110 transition-all">Acessar Sistema</button>
+            <p id="error-msg" class="text-red-500 text-xs mt-4 hidden font-bold">Código inválido.</p>
         </div>
-        <p class="mt-10 text-[10px] opacity-30 uppercase tracking-widest font-bold">Atualização: 19/02/2026</p>
     </div>
 
+    <!-- MODAL DETALHES -->
     <div id="modal-overlay" onclick="closeModal()">
-        <div class="bg-white w-full max-w-xl rounded-3xl p-8 card-shadow m-4 overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-start mb-6 border-b pb-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl p-8 card-shadow m-4 overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-6 border-b pb-4 border-slate-100">
                 <div>
-                    <h2 id="modal-unit-name" class="text-xl font-black text-slate-900 uppercase italic">Unidade</h2>
-                    <p id="modal-unit-gp" class="text-[10px] text-slate-500 font-bold uppercase"></p>
+                    <h2 id="modal-unit-name" class="text-xl font-black text-slate-900 uppercase italic leading-tight">Unidade</h2>
+                    <p id="modal-unit-gp" class="text-[10px] text-slate-500 font-bold uppercase mt-1"></p>
                 </div>
-                <button onclick="closeModal()" class="text-slate-400 text-3xl">&times;</button>
+                <button onclick="closeModal()" class="text-slate-400 text-3xl leading-none">&times;</button>
             </div>
-            <div id="modal-criteria-list" class="grid grid-cols-1 gap-2 mb-6"></div>
-            <div class="bg-slate-100 p-4 rounded-xl flex justify-between items-center">
-                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Score Final (13 Pilares)</span>
-                <span id="modal-total-score" class="text-xl font-black"></span>
+            <div id="modal-risk-banner" class="mb-6 p-4 rounded-xl flex items-center justify-between">
+                <span class="text-[10px] font-black uppercase tracking-widest italic">Análise de Contexto</span>
+                <span id="modal-risk-tag" class="px-4 py-1 rounded-full text-white text-[10px] font-black uppercase shadow-sm"></span>
+            </div>
+            <div id="modal-criteria-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8"></div>
+            <div id="modal-footer-score" class="bg-slate-100 p-5 rounded-2xl flex justify-between items-center border border-slate-200">
+                <span id="modal-score-label" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Métrica Acumulada</span>
+                <span id="modal-total-score" class="text-2xl font-black text-slate-900 tracking-tighter"></span>
             </div>
         </div>
     </div>
 
-    <div id="dashboard-content">
-        <header class="nba-blue text-white py-10 px-6 border-b-8 border-red-600 shadow-xl">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
-                <div>
-                    <h1 class="text-4xl font-black italic tracking-tighter uppercase">NBA BASKETBALL SCHOOL</h1>
-                    <p class="opacity-80 font-medium tracking-widest uppercase text-sm">Dashboard Estratégico de Atendimento</p>
-                </div>
-                <div class="mt-4 md:mt-0 bg-white/10 p-4 rounded-xl border border-white/20 text-center">
-                    <p class="text-[10px] uppercase font-bold opacity-60">Status da Base</p>
-                    <p class="text-xs font-black text-emerald-400">PLANILHA CONECTADA</p>
-                </div>
+    <!-- APP CONTAINER -->
+    <div class="app-container" id="app-container" style="display:none;">
+        <aside class="sidebar nba-blue shadow-2xl">
+            <div class="p-8 border-b border-white/10 flex flex-col items-center">
+                <img src="https://static.cdnlogo.com/logos/n/84/nba.png" alt="NBA Logo" class="w-10 mb-4">
+                <h2 class="text-white text-[11px] font-black italic uppercase text-center leading-tight tracking-tighter">NBA Basketball School</h2>
             </div>
-        </header>
-
-        <main class="max-w-7xl mx-auto px-6 py-10 space-y-12">
-            <section class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="kpis">
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-emerald-500 card-shadow">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase">Saudáveis</p>
-                    <h3 class="text-4xl font-black text-emerald-600 mt-1" id="kpi-healthy">0</h3>
-                    <p class="text-[9px] font-bold text-slate-300">Score ≥ 2.80</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-blue-500 card-shadow">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase">Estáveis</p>
-                    <h3 class="text-4xl font-black text-blue-600 mt-1" id="kpi-satisfatory">0</h3>
-                    <p class="text-[9px] font-bold text-slate-300">2.30 - 2.79</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-amber-500 card-shadow">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase">Em Alerta</p>
-                    <h3 class="text-4xl font-black text-amber-500 mt-1" id="kpi-warning">0</h3>
-                    <p class="text-[9px] font-bold text-slate-300">2.00 - 2.29</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border-l-8 border-red-500 card-shadow">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase">Risco Crítico</p>
-                    <h3 class="text-4xl font-black text-red-600 mt-1" id="kpi-critical">0</h3>
-                    <p class="text-[9px] font-bold text-slate-300">0.00 - 1.99</p>
-                </div>
-            </section>
-
-            <section class="bg-white p-8 rounded-3xl card-shadow border border-slate-100">
-                <h2 class="text-2xl font-black text-slate-800 uppercase mb-8 italic border-b pb-4">Performance por Critério (Média Global)</h2>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    <div class="h-[450px]"><canvas id="chart-criteria"></canvas></div>
-                    <div class="grid grid-cols-2 gap-3" id="grid-criteria"></div>
-                </div>
-            </section>
-
-            <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white p-8 rounded-3xl card-shadow">
-                    <h3 class="text-xl font-bold mb-6 text-slate-700">Composição da Rede (%)</h3>
-                    <div class="h-[350px]"><canvas id="chart-doughnut"></canvas></div>
-                </div>
-                <div class="bg-white p-8 rounded-3xl card-shadow">
-                    <h3 class="text-xl font-bold mb-6 text-slate-700">Saúde por Gestor (GP)</h3>
-                    <div class="h-[350px]"><canvas id="chart-manager"></canvas></div>
-                </div>
-            </section>
-
-            <section class="space-y-6">
-                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-2xl font-black text-slate-800 uppercase italic">Diagnóstico das Unidades (202)</h2>
-                    <div class="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
-                        <input type="text" id="input-search" placeholder="Buscar unidade ou GP..." class="px-4 py-2 rounded-lg border border-slate-300 text-sm w-full md:w-64 outline-none focus:ring-2 focus:ring-blue-600">
-                        <select id="select-filter" class="px-4 py-2 rounded-lg border border-slate-300 text-sm outline-none">
-                            <option value="all">Todos os Status</option>
-                            <option value="healthy">Saudáveis</option>
-                            <option value="satisfatory">Estáveis</option>
-                            <option value="warning">Alerta</option>
-                            <option value="critical">Críticas</option>
-                        </select>
+            <nav class="mt-6 flex-grow">
+                <div class="menu-item active" id="menu-home" onclick="switchView('home')">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,1)]"></span>
+                        Visão Geral
                     </div>
                 </div>
-                <div id="unit-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </section>
-        </main>
+                <div class="menu-item" id="menu-semaforo" onclick="switchView('semaforo')">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        Semáforo
+                    </div>
+                </div>
+                <div class="menu-item" id="menu-diagnostico" onclick="switchView('diagnostico')">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        Diagnóstico
+                    </div>
+                </div>
+            </nav>
+            <div class="p-6 border-t border-white/10 text-center">
+                <p class="text-[8px] text-white/20 uppercase font-bold tracking-[0.2em]">Management Hub v3.0</p>
+            </div>
+        </aside>
 
-        <footer class="bg-slate-900 text-white py-12 text-center border-t-8 border-red-600">
-            <p class="text-[10px] opacity-40 font-bold uppercase tracking-widest italic">NBA Properties, Inc. | Confidencial | Dados atualizados em 19/02/2026</p>
-        </footer>
+        <main class="main-content">
+            <header class="nba-blue text-white py-8 px-10 border-b-4 border-red-600 sticky top-0 z-10 shadow-2xl">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 id="view-title" class="text-2xl font-black italic uppercase leading-none tracking-tight">Home</h1>
+                        <p id="view-subtitle" class="opacity-60 text-[10px] uppercase mt-2 tracking-widest italic font-medium">Consolidado Geral de Rede</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="bg-white/5 px-6 py-3 rounded-2xl border border-white/10 text-center min-w-[160px]">
+                            <p id="stat-label" class="text-[8px] opacity-60 uppercase font-bold text-white/70">Mapeamento</p>
+                            <p id="stat-total-units" class="text-xl font-black tracking-tighter text-white">0</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-10 space-y-12">
+                <!-- Seção Home: Dividida em blocos -->
+                <div id="home-kpi-sections" class="hidden space-y-10">
+                    <div class="space-y-4">
+                        <h3 class="text-white text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Performance Técnica (Semáforo)</h3>
+                        <div id="kpi-tech-row" class="grid grid-cols-1 md:grid-cols-4 gap-6"></div>
+                    </div>
+                    <div class="space-y-4">
+                        <h3 class="text-white text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Exposição de Churn (Diagnóstico)</h3>
+                        <div id="kpi-risk-row" class="grid grid-cols-1 md:grid-cols-4 gap-6"></div>
+                    </div>
+                </div>
+
+                <!-- KPI Unificado para outras páginas -->
+                <div id="kpi-container" class="grid grid-cols-1 md:grid-cols-4 gap-6"></div>
+
+                <div id="view-container" class="space-y-12"></div>
+                
+                <div id="methodology-section" class="hidden"></div>
+            </div>
+        </main>
     </div>
 
     <script>
         const CONFIG = {
-            CSV_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDFJ9sP_Kp-iAAgRQBUbJm1fzPVdFPiPgvMCc_iJL2VzJptbIfKg66_stnvNWJv2AgA5WAm8uPMD3Y/pub?gid=0&single=true&output=csv',
+            SEMAFORO_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDFJ9sP_Kp-iAAgRQBUbJm1fzPVdFPiPgvMCc_iJL2VzJptbIfKg66_stnvNWJv2AgA5WAm8uPMD3Y/pub?gid=0&single=true&output=csv',
+            DIAGNOSTICO_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQU-f6svRhAHgVeGhhZvAl48bru-eZYbOmb8qWCnImPe79IN_Yg9cM7RetTeQ6gBagbOsMj-62rsTIg/pub?gid=664543312&single=true&output=csv', 
             PASSWORD: 'Ts_240518'
         };
 
-        let rawUnits = [];
-        let criteriaStats = [];
-        let headers = [];
+        let fullData = { semaforo: [], diagnostico: [] };
+        let currentView = 'home';
+        let charts = [];
 
-        document.getElementById('btn-login').addEventListener('click', handleLogin);
-        document.getElementById('pass-field').addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
-
-        async function handleLogin() {
-            const typed = document.getElementById('pass-field').value;
-            if (typed === CONFIG.PASSWORD) {
-                document.getElementById('error-msg').style.display = 'none';
-                document.getElementById('loading-msg').style.display = 'block';
-                await startDashboard();
-            } else {
-                document.getElementById('error-msg').style.display = 'block';
-            }
-        }
-
-        async function startDashboard() {
-            try {
-                const response = await fetch(CONFIG.CSV_URL);
-                const csvText = await response.text();
-                processData(csvText);
+        function handleLogin() {
+            if (document.getElementById('pass-field').value === CONFIG.PASSWORD) {
                 document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('dashboard-content').style.display = 'block';
-                document.body.style.overflow = 'auto';
-                renderDashboard();
-            } catch (err) {
-                document.getElementById('loading-msg').style.display = 'none';
-                document.getElementById('error-msg').innerText = "Erro ao conectar com a planilha.";
-                document.getElementById('error-msg').style.display = 'block';
+                document.getElementById('app-container').style.display = 'flex';
+                initApp();
+            } else { document.getElementById('error-msg').classList.remove('hidden'); }
+        }
+
+        async function initApp() {
+            await Promise.all([loadBase('semaforo'), loadBase('diagnostico')]);
+            renderView();
+        }
+
+        async function loadBase(view) {
+            try {
+                const res = await fetch(view === 'semaforo' ? CONFIG.SEMAFORO_URL : CONFIG.DIAGNOSTICO_URL);
+                const txt = await res.text();
+                fullData[view] = parseBase(txt, view);
+            } catch (e) { console.error("Error loading " + view); }
+        }
+
+        function parseBase(csv, view) {
+            const rows = [];
+            let rData = [], f = '', q = false;
+            for (let i = 0; i < csv.length; i++) {
+                if (csv[i] === '"' && q && csv[i+1] === '"') { f += '"'; i++; }
+                else if (csv[i] === '"') q = !q;
+                else if (csv[i] === ',' && !q) { rData.push(f); f = ''; }
+                else if ((csv[i] === '\r' || csv[i] === '\n') && !q) { if (f || rData.length) { rData.push(f); rows.push(rData); rData = []; f = ''; } }
+                else f += csv[i];
+            }
+            if (f || rData.length) { rData.push(f); rows.push(rData); }
+
+            const headers = rows[1]; 
+            const data = rows.slice(2);
+
+            if (view === 'semaforo') {
+                const cIdx = [3,4,5,6,7,8,9,10,11,12,13,14,15];
+                return data.filter(r => r.length > 5 && r[0]).map(row => {
+                    let s = 0, det = [];
+                    cIdx.forEach(idx => {
+                        const v = parseFloat(row[idx]) || 0; s += v;
+                        det.push({ label: headers[idx] ? headers[idx].split('-').pop().trim() : 'Pilar', score: v });
+                    });
+                    const avg = s / 13;
+                    return { name: row[0], gp: row[1], score: avg, rid: avg >= 2.8 ? 'healthy' : avg >= 2.3 ? 'satisfatory' : avg >= 2.0 ? 'warning' : 'critical', details: det };
+                });
+            } else {
+                const qLabels = ["Planejamento", "Marca", "Renovação", "Oportunidades", "Pontos Fortes", "Pontos Fracos", "Estratégias", "Metodologia", "Relacionamento", "Uniformização"];
+                return data.filter(r => r.length > 2 && r[1]).slice(0, 124).map(row => {
+                    let qDet = [];
+                    qLabels.forEach((l, i) => qDet.push({ label: l, text: row[i+2] || "Pilar OK" }));
+                    const analysis = isolatedRiskAnalysis(qDet);
+                    return { name: row[1], gp: row[0], details: qDet, risk_score: analysis.score, rid: analysis.id, rlabel: analysis.label, color: analysis.color };
+                });
             }
         }
 
-        function processData(csv) {
-            const rows = csv.split(/\r?\n/).map(line => {
-                const fields = [];
-                let field = '', inQuotes = false;
-                for (let char of line) {
-                    if (char === '"') inQuotes = !inQuotes;
-                    else if (char === ',' && !inQuotes) { fields.push(field); field = ''; }
-                    else field += char;
-                }
-                fields.push(field);
-                return fields;
+        // --- ANÁLISE QUALITATIVA ISOLADA ---
+        function isolatedRiskAnalysis(details) {
+            const hImpact = ["Renovação", "Relacionamento", "Metodologia", "Pontos Fracos"];
+            const fCrit = ['cancelar', 'churn', 'parar', 'não responde', 'inadimplente', 'frio', 'desgaste', 'abandonou', 'sem retorno', 'jurídico'];
+            const fMod = ['atraso', 'problema', 'difícil', 'lento', 'falta', 'baixo', 'insatisfeito', 'irregular', 'defasada', 'resistência', 'demora'];
+            let score = 0, delinquent = false;
+            details.forEach(d => {
+                const t = d.text.toLowerCase();
+                if(t.includes('inadimplente') || t.includes('inadimplência') || t.includes('não pagou')) delinquent = true;
+                fCrit.forEach(w => { if(t.includes(w)) score += hImpact.includes(d.label) ? 3.5 : 2.0; });
+                fMod.forEach(w => { if(t.includes(w)) score += hImpact.includes(d.label) ? 1.5 : 0.8; });
             });
-
-            headers = rows[0];
-            const dataRows = rows.slice(1, 203); // 202 Unidades licenciadas
-
-            // Índices dos 13 pilares operacionais
-            const critIndices = [3,4,5,6,7,8,9,10,11,12,13,14,15]; 
-            let critSums = new Array(13).fill(0);
-
-            rawUnits = dataRows.filter(r => r.length > 5).map(row => {
-                let sum = 0;
-                let details = [];
-                critIndices.forEach((idx, i) => {
-                    const val = parseFloat(row[idx]) || 0;
-                    sum += val;
-                    critSums[i] += val;
-                    details.push({ label: headers[idx].split('-').pop().trim(), score: val });
-                });
-                
-                const score = sum / 13; // Recálculo sobre 13 pilares
-                let rid = 'critical', rlabel = 'Risco Crítico';
-                if(score >= 2.80) { rid = 'healthy'; rlabel = 'Saudável'; }
-                else if(score >= 2.30) { rid = 'satisfatory'; rlabel = 'Estável'; }
-                else if(score >= 2.00) { rid = 'warning'; rlabel = 'Alerta'; }
-
-                return {
-                    name: row[0], gp: (row[1] || 'N/A').trim(),
-                    score: score, risk_id: rid, risk_label: rlabel,
-                    details: details,
-                    diag: score >= 2.80 ? "Operação de excelência." : "Atenção em critérios específicos."
-                };
-            });
-
-            criteriaStats = critIndices.map((idx, i) => {
-                const avg = critSums[i] / rawUnits.length;
-                let color = '#EF4444';
-                if(avg >= 2.80) color = '#10B981';
-                else if(avg >= 2.30) color = '#3B82F6';
-                else if(avg >= 2.00) color = '#F59E0B';
-                return { name: headers[idx].split('-').pop().trim(), score: avg, color: color };
-            }).sort((a,b) => b.score - a.score);
+            if (delinquent) score = 10;
+            score = Math.min(10, parseFloat(score.toFixed(1)));
+            if (score >= 8) return { id: 'critico', label: 'Crítico', color: '#EF4444', score };
+            if (score >= 6) return { id: 'alto', label: 'Alto', color: '#F59E0B', score };
+            if (score >= 3) return { id: 'medio', label: 'Médio', color: '#3B82F6', score };
+            return { id: 'baixo', label: 'Baixo', color: '#10B981', score };
         }
 
-        function renderDashboard() {
-            updateKPIs();
-            renderCriteria();
-            initCharts();
-            renderUnits();
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('menu-' + view).classList.add('active');
+            renderView();
         }
 
-        function updateKPIs() {
-            document.getElementById('kpi-healthy').innerText = rawUnits.filter(u => u.risk_id === 'healthy').length;
-            document.getElementById('kpi-satisfatory').innerText = rawUnits.filter(u => u.risk_id === 'satisfatory').length;
-            document.getElementById('kpi-warning').innerText = rawUnits.filter(u => u.risk_id === 'warning').length;
-            document.getElementById('kpi-critical').innerText = rawUnits.filter(u => u.risk_id === 'critical').length;
+        function renderView() {
+            const container = document.getElementById('view-container');
+            const kpiMain = document.getElementById('kpi-container');
+            const kpiHome = document.getElementById('home-kpi-sections');
+            const methodology = document.getElementById('methodology-section');
+            const statLabel = document.getElementById('stat-label');
+            const statVal = document.getElementById('stat-total-units');
+            const title = document.getElementById('view-title');
+
+            charts.forEach(c => c.destroy()); charts = [];
+
+            if (currentView === 'home') {
+                title.innerText = 'Painel Integrado';
+                statLabel.innerText = 'Unidades / Diagnósticos';
+                statVal.innerText = `${fullData.semaforo.length} / ${fullData.diagnostico.length}`;
+                kpiMain.classList.add('hidden');
+                kpiHome.classList.remove('hidden');
+                methodology.classList.remove('hidden');
+                renderHome();
+                renderMethodology('home');
+            } else if (currentView === 'semaforo') {
+                title.innerText = 'Semáforo de Performance';
+                statLabel.innerText = 'Unidades Mapeadas';
+                statVal.innerText = fullData.semaforo.length;
+                kpiMain.classList.remove('hidden');
+                kpiHome.classList.add('hidden');
+                methodology.classList.add('hidden');
+                renderSemaforo();
+            } else {
+                title.innerText = 'Diagnóstico Qualitativo';
+                statLabel.innerText = 'Diagnósticos Realizados';
+                statVal.innerText = fullData.diagnostico.length;
+                kpiMain.classList.remove('hidden');
+                kpiHome.classList.add('hidden');
+                methodology.classList.remove('hidden');
+                renderDiagnostico();
+                renderMethodology('diagnostico');
+            }
         }
 
-        function renderCriteria() {
-            const grid = document.getElementById('grid-criteria');
-            grid.innerHTML = criteriaStats.map(c => `
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center">
-                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">${c.name}</span>
-                    <span class="text-xs font-black" style="color:${c.color}">${c.score.toFixed(2)}</span>
+        function renderHome() {
+            const sem = fullData.semaforo;
+            const dia = fullData.diagnostico;
+
+            // KPIs Semáforo
+            const sCounts = { h: sem.filter(u=>u.rid==='healthy').length, s: sem.filter(u=>u.rid==='satisfatory').length, w: sem.filter(u=>u.rid==='warning').length, c: sem.filter(u=>u.rid==='critical').length };
+            document.getElementById('kpi-tech-row').innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border-l-4 border-emerald-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Saudáveis</p><h4 class="text-2xl font-black text-emerald-600">${sCounts.h}</h4></div>
+                <div class="bg-white p-5 rounded-2xl border-l-4 border-blue-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Estáveis</p><h4 class="text-2xl font-black text-blue-600">${sCounts.s}</h4></div>
+                <div class="bg-white p-5 rounded-2xl border-l-4 border-amber-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Alerta</p><h4 class="text-2xl font-black text-amber-500">${sCounts.w}</h4></div>
+                <div class="bg-white p-5 rounded-2xl border-l-4 border-red-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Críticas</p><h4 class="text-2xl font-black text-red-600">${sCounts.c}</h4></div>
+            `;
+
+            // KPIs Diagnóstico
+            const dCounts = { b: dia.filter(u=>u.rid==='baixo').length, m: dia.filter(u=>u.rid==='medio').length, a: dia.filter(u=>u.rid==='alto').length, c: dia.filter(u=>u.rid==='critico').length };
+            document.getElementById('kpi-risk-row').innerHTML = `
+                <div class="bg-white p-5 rounded-2xl border-l-4 border-emerald-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Risco Baixo</p><h4 class="text-2xl font-black text-emerald-600">${dCounts.b}</h4></div>
+                <div class="bg-white p-5 rounded-2xl border-l-4 border-blue-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Risco Médio</p><h4 class="text-2xl font-black text-blue-600">${dCounts.m}</h4></div>
+                <div class="bg-white p-5 rounded-2xl border-l-4 border-amber-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Risco Alto</p><h4 class="text-2xl font-black text-amber-500">${dCounts.a}</h4></div>
+                <div class="bg-white p-5 rounded-2xl border-l-4 border-red-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Risco Crítico</p><h4 class="text-2xl font-black text-red-600">${dCounts.c}</h4></div>
+            `;
+
+            document.getElementById('view-container').innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-10 rounded-3xl card-shadow">
+                        <h2 class="text-xl font-black text-slate-800 uppercase italic mb-8">Cruzamento Performance x Risco</h2>
+                        <div class="h-[350px]"><canvas id="chart-home-correlation"></canvas></div>
+                    </div>
+                    <div class="bg-white p-10 rounded-3xl card-shadow flex flex-col">
+                        <h2 class="text-xl font-black text-slate-800 uppercase italic mb-6">Alertas de Atenção Imediata</h2>
+                        <div class="space-y-3 overflow-y-auto max-h-[350px] pr-2">
+                            ${dia.filter(u => u.rid === 'critico').map(u => `
+                                <div class="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100">
+                                    <span class="text-xs font-black text-slate-900 uppercase">${u.name}</span>
+                                    <span class="text-[8px] font-black uppercase text-red-600 bg-red-100 px-3 py-1 rounded-full">SCORE ${u.risk_score}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
                 </div>
-            `).join('');
-        }
+            `;
 
-        function initCharts() {
-            Chart.defaults.font.family = "'Montserrat', sans-serif";
-            
-            new Chart(document.getElementById('chart-criteria'), {
+            const gps = ["Andres", "Sara", "Gustavo", "Dayane"];
+            const chart = new Chart(document.getElementById('chart-home-correlation'), {
                 type: 'bar',
                 data: {
-                    labels: criteriaStats.map(s => s.name),
-                    datasets: [{ data: criteriaStats.map(s => s.score), backgroundColor: criteriaStats.map(s => s.color), borderRadius: 5 }]
+                    labels: gps,
+                    datasets: [
+                        { label: 'Saúde Técnica (x10)', data: gps.map(g => (sem.filter(u=>u.gp===g).reduce((a,b)=>a+b.score,0)/(sem.filter(u=>u.gp===g).length||1)*3.33).toFixed(1)), backgroundColor: '#10B981' },
+                        { label: 'Risco de Churn (0-10)', data: gps.map(g => (dia.filter(u=>u.gp===g).reduce((a,b)=>a+b.risk_score,0)/(dia.filter(u=>u.gp===g).length||1)).toFixed(1)), backgroundColor: '#EF4444' }
+                    ]
                 },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 3 } } }
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 10 } } }
             });
+            charts.push(chart);
+        }
 
-            const dist = ['healthy','satisfatory','warning','critical'].map(id => rawUnits.filter(u => u.risk_id === id).length);
-            new Chart(document.getElementById('chart-doughnut'), {
-                type: 'doughnut',
-                data: { labels: ['Saudáveis','
+        function renderSemaforo() {
+            const data = fullData.semaforo;
+            renderKPIs(data, 'semaforo');
+            document.getElementById('view-container').innerHTML = `
+                <div class="bg-white p-10 rounded-3xl card-shadow">
+                    <h2 class="text-xl font-black text-slate-800 uppercase italic mb-8 border-b pb-4">Performance Global</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                        <div class="h-[400px]"><canvas id="chart-criteria"></canvas></div>
+                        <div id="grid-criteria" class="grid grid-cols-2 gap-3"></div>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-xl flex justify-between items-center gap-4">
+                        <h2 class="text-xl font-black text-slate-800 uppercase italic">Unidades</h2>
+                        <div class="flex gap-2"><input type="text" id="view-search" oninput="filterList()" placeholder="Buscar..." class="px-4 py-2 bg-slate-100 rounded-lg outline-none text-sm w-64"><select id="view-filter" onchange="filterList()" class="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold"><option value="all">Todos</option><option value="healthy">Saudáveis</option><option value="satisfatory">Estáveis</option><option value="warning">Alerta</option><option value="critical">Críticas</option></select></div>
+                    </div>
+                    <div id="view-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+                </div>
+            `;
+            const critSums = new Array(13).fill(0);
+            data.forEach(u => u.details.forEach((d, i) => critSums[i] += d.score));
+            const stats = critSums.map((s, i) => { const avg = s / (data.length || 1); return { label: data[0].details[i].label, score: avg, color: avg >= 2.8 ? '#10B981' : avg >= 2.3 ? '#3B82F6' : avg >= 2.0 ? '#F59E0B' : '#EF4444' }; }).sort((a,b) => b.score - a.score);
+            const chart = new Chart(document.getElementById('chart-criteria'), { type: 'bar', data: { labels: stats.map(s => s.label), datasets: [{ data: stats.map(s => s.score), backgroundColor: stats.map(s => s.color), borderRadius: 6 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { min: 0, max: 3 } } } });
+            charts.push(chart);
+            document.getElementById('grid-criteria').innerHTML = stats.map(s => `<div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm"><span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">${s.label}</span><span class="text-xs font-black" style="color:${s.color}">${s.score.toFixed(2)}</span></div>`).join('');
+            filterList();
+        }
+
+        function renderDiagnostico() {
+            const data = fullData.diagnostico;
+            renderKPIs(data, 'diagnostico');
+            document.getElementById('view-container').innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-10 rounded-3xl card-shadow"><h2 class="text-xl font-black text-slate-800 uppercase italic mb-6">Matriz de Risco</h2><div class="h-[300px]"><canvas id="chart-risk-doughnut"></canvas></div></div>
+                    <div class="bg-white p-10 rounded-3xl card-shadow"><h2 class="text-xl font-black text-slate-800 uppercase italic mb-6">Exposição por GP</h2><div class="h-[300px]"><canvas id="chart-risk-manager"></canvas></div></div>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-xl flex justify-between items-center gap-4 border border-white/10">
+                        <h2 class="text-xl font-black text-slate-800 uppercase italic">Análise Individual</h2>
+                        <div class="flex gap-2"><input type="text" id="view-search" oninput="filterList()" placeholder="Buscar..." class="px-4 py-2 bg-slate-100 rounded-lg outline-none text-sm w-64"><select id="view-filter" onchange="filterList()" class="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold"><option value="all">Todos</option><option value="baixo">Baixo</option><option value="medio">Médio</option><option value="alto">Alto</option><option value="critico">Crítico</option></select></div>
+                    </div>
+                    <div id="view-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-20"></div>
+                </div>
+            `;
+            const counts = { b:dia.filter(u=>u.rid==='baixo').length, m:dia.filter(u=>u.rid==='medio').length, a:dia.filter(u=>u.rid==='alto').length, c:dia.filter(u=>u.rid==='critico').length };
+            const chartD = new Chart(document.getElementById('chart-risk-doughnut'), { type: 'doughnut', data: { labels: ['Baixo', 'Médio', 'Alto', 'Crítico'], datasets: [{ data: [counts.b, counts.m, counts.a, counts.c], backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } } });
+            const gps = ["Andres", "Sara", "Gustavo", "Dayane"];
+            const chartM = new Chart(document.getElementById('chart-risk-manager'), { type: 'bar', data: { labels: gps, datasets: [ { label: 'Baixo', data: gps.map(g => data.filter(u => u.gp === g && u.rid === 'baixo').length), backgroundColor: '#10B981' }, { label: 'Médio', data: gps.map(g => data.filter(u => u.gp === g && u.rid === 'medio').length), backgroundColor: '#3B82F6' }, { label: 'Alto', data: gps.map(g => data.filter(u => u.gp === g && u.rid === 'alto').length), backgroundColor: '#F59E0B' }, { label: 'Crítico', data: gps.map(g => data.filter(u => u.gp === g && u.rid === 'critico').length), backgroundColor: '#EF4444' } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }, plugins: { legend: { display: false } } } });
+            charts.push(chartD, chartM);
+            filterList();
+        }
+
+        function renderKPIs(data, type) {
+            const container = document.getElementById('kpi-container');
+            const counts = { b: 0, m: 0, a: 0, c: 0 };
+            data.forEach(u => {
+                if(type === 'semaforo') { if(u.rid === 'healthy') counts.b++; else if(u.rid === 'satisfatory') counts.m++; else if(u.rid === 'warning') counts.a++; else counts.c++; }
+                else { if(u.rid === 'baixo') counts.b++; else if(u.rid === 'medio') counts.m++; else if(u.rid === 'alto') counts.a++; else counts.c++; }
+            });
+            const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'];
+            const labels = type === 'semaforo' ? ['Saudáveis', 'Estáveis', 'Alerta', 'Críticas'] : ['Risco Baixo', 'Risco Médio', 'Risco Alto', 'Risco Crítico'];
+            container.innerHTML = labels.map((l, i) => `<div class="bg-white p-6 rounded-2xl border-l-8 shadow-lg transition-all" style="border-left-color: ${colors[i]}"><p class="text-slate-400 text-[9px] font-bold uppercase tracking-widest">${l}</p><h3 class="text-3xl font-black mt-1" style="color: ${colors[i]}">${Object.values(counts)[i]}</h3></div>`).join('');
+        }
+
+        function renderMethodology(view) {
+            const box = document.getElementById('methodology-section');
+            if (view === 'home') {
+                box.innerHTML = `<div class="methodology-box p-10 rounded-3xl text-white/80 space-y-6 mb-10"><h2 class="text-white text-xl font-black uppercase italic border-l-4 border-red-600 pl-4">Metodologia de Inteligência Unificada</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs leading-relaxed"><div><h4 class="text-white font-bold uppercase mb-2">1. Saúde 360° da Rede</h4><p>A métrica de saúde global correlaciona a média técnica do Semáforo com a estabilidade do Diagnóstico. O Radar de Gestores identifica o desvio entre a entrega operacional e a satisfação contratual.</p></div><div><h4 class="text-white font-bold uppercase mb-2">2. Matriz de Prioridade</h4><p>As unidades no topo da lista de alertas são aquelas com Score Técnico Crítico (< 2.0) e Risco de Churn Elevado (> 8.0), representando o maior perigo imediato para a rede.</p></div></div></div>`;
+            } else {
+                box.innerHTML = `<div class="methodology-box p-10 rounded-3xl text-white/80 space-y-6 mb-10"><h2 class="text-white text-xl font-black uppercase italic border-l-4 border-red-600 pl-4 leading-tight">Metodologia de Risco (Diagnóstico Isolado)</h2><div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-xs"> <div class="bg-red-900/20 p-4 rounded-xl border border-red-500/30 text-center"><h4 class="text-red-400 font-bold uppercase text-[10px] tracking-widest">🛑 Gatilho Absoluto</h4><p>Inadimplência ou menção a cancelamento = Score 10.0 automático.</p></div><div class="space-y-3 border-r border-white/10 pr-4"><h4 class="text-white font-bold uppercase text-[10px] tracking-widest border-b border-white/10 pb-1">1. Fricção Passiva</h4><p>Interpreta o Silêncio Administrativo e a lentidão no retorno dos franqueados.</p></div><div class="space-y-3 border-r border-white/10 pr-4"><h4 class="text-white font-bold uppercase text-[10px] tracking-widest border-b border-white/10 pb-1">2. Fricção de Marca</h4><p>Avalia resistência à metodologia e quebra de padrões visuais.</p></div><div class="space-y-3"><h4 class="text-white font-bold uppercase text-[10px] tracking-widest border-b border-white/10 pb-1">3. Régua de Churn</h4><ul class="space-y-1"><li><span class="text-red-500 font-bold">8-10:</span> Crítico</li><li><span class="text-amber-500 font-bold">6-7:</span> Alto</li><li><span class="text-blue-400 font-bold">3-5:</span> Médio</li><li><span class="text-emerald-500 font-bold">0-2:</span> Baixo</li></ul></div></div></div>`;
+            }
+        }
+
+        function filterList() {
+            const search = document.getElementById('view-search').value.toLowerCase();
+            const filter = document.getElementById('view-filter').value;
+            const grid = document.getElementById('view-grid');
+            const data = fullData[currentView];
+            grid.innerHTML = data.filter(u => {
+                const ms = u.name.toLowerCase().includes(search) || (u.gp && u.gp.toLowerCase().includes(search));
+                if (filter === 'all') return ms;
+                if (currentView === 'semaforo') return u.rid === filter && ms;
+                if (filter === 'baixo') return u.risk_score <= 2.9 && ms;
+                if (filter === 'medio') return u.risk_score >= 3 && u.risk_score <= 5.9 && ms;
+                if (filter === 'alto') return u.risk_score >= 6 && u.risk_score <= 7.9 && ms;
+                if (filter === 'critico') return u.risk_score >= 8 && ms;
+                return ms;
+            }).map(u => {
+                const color = u.color || (u.rid === 'healthy' ? '#10B981' : u.rid === 'satisfatory' ? '#3B82F6' : u.rid === 'warning' ? '#F59E0B' : '#EF4444');
+                const idx = data.indexOf(u);
+                if(currentView === 'semaforo') {
+                    return `<div onclick="openModal(${idx})" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-md cursor-pointer hover:scale-[1.02] transition-all border-b-4" style="border-bottom-color: ${color}"><div class="flex justify-between items-start mb-4"><h4 class="font-bold text-[10px] uppercase text-slate-900 leading-tight">${u.name}</h4><span class="text-[7px] px-2 py-1 rounded font-black uppercase text-white" style="background-color: ${color}">${u.rid.toUpperCase()}</span></div><p class="text-[9px] text-slate-400 font-bold uppercase">GP: ${u.gp}</p><div class="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Score</span><span class="text-sm font-black text-slate-700">${u.score.toFixed(2)}</span></div></div>`;
+                } else {
+                    return `<div onclick="openModal(${idx})" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-md cursor-pointer hover:scale-[1.02] transition-all border-l-4" style="border-left-color: ${color}"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-[11px] uppercase text-slate-900">${u.name}</h4><div class="flex flex-col items-end"><span class="text-[10px] font-black text-slate-900">${u.risk_score.toFixed(1)}/10</span><span class="text-[6px] px-1 py-0.5 rounded font-black uppercase text-white" style="background-color: ${color}">${u.rlabel}</span></div></div><p class="text-[9px] text-slate-400 font-bold italic mb-4 uppercase tracking-tighter">Gestor: ${u.gp}</p><div class="pt-4 border-t border-slate-50 flex justify-between items-center"><span class="text-[8px] text-slate-400 font-bold uppercase tracking-widest italic">Análise de Risco</span><div class="bg-blue-600 text-white p-1.5 rounded-lg shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div></div></div>`;
+                }
+            }).join('');
+        }
+
+        window.openModal = function(idx) {
+            const u = fullData[currentView][idx];
+            if (!u) return;
+            const list = document.getElementById('modal-criteria-list');
+            document.getElementById('modal-unit-name').innerText = u.name;
+            document.getElementById('modal-unit-gp').innerText = "Responsável: " + u.gp;
+            const banner = document.getElementById('modal-risk-banner');
+            const tag = document.getElementById('modal-risk-tag');
+            const footer = document.getElementById('modal-footer-score');
+
+            if(currentView === 'semaforo') {
+                banner.style.display = 'none'; footer.style.display = 'flex';
+                document.getElementById('modal-score-label').innerText = 'Score Médio (13 Pilares)';
+                document.getElementById('modal-total-score').innerText = u.score.toFixed(2);
+                list.innerHTML = u.details.map(d => `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100 shadow-sm"><span class="text-[10px] font-bold text-slate-500 uppercase">${d.label}</span><span class="text-xs font-black ${d.score >= 2.8 ? 'text-emerald-600' : d.score >= 2.3 ? 'text-blue-600' : 'text-red-600'}">${d.score.toFixed(1)}</span></div>`).join('');
+            } else {
+                banner.style.display = 'flex'; banner.style.backgroundColor = u.color + '20'; 
+                tag.innerText = u.rlabel + " (" + u.risk_score.toFixed(1) + ")"; tag.style.backgroundColor = u.color;
+                footer.style.display = 'flex';
+                document.getElementById('modal-score-label').innerText = 'Score Qualitativo';
+                document.getElementById('modal-total-score').innerText = u.risk_score.toFixed(1) + " / 10.0";
+                list.classList.remove('md:grid-cols-2'); list.classList.add('grid-cols-1');
+                list.innerHTML = u.details.map(d => `<div class="bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm mb-2"><p class="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">${d.label}</p><p class="text-xs text-slate-700 font-medium leading-relaxed">${d.text}</p></div>`).join('');
+            }
+            document.getElementById('modal-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeModal = function() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('modal-criteria-list').classList.add('md:grid-cols-2');
+            document.getElementById('modal-criteria-list').classList.remove('grid-cols-1');
+        }
+    </script>
+</body>
+</html>
