@@ -35,10 +35,10 @@
         #error-msg { color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none; font-weight: bold; }
         #loading-msg { color: #60a5fa; font-size: 13px; margin-top: 15px; display: none; }
 
-        /* Estilo do Modal */
+        /* Estilo do Modal de Detalhes */
         #modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 28, 44, 0.9); z-index: 10000; justify-content: center; align-items: center;
+            background: rgba(5, 28, 44, 0.95); z-index: 10000; justify-content: center; align-items: center;
         }
     </style>
 </head>
@@ -57,19 +57,18 @@
     </div>
 
     <div id="modal-overlay" onclick="closeModal()">
-        <div class="bg-white w-full max-w-2xl rounded-3xl p-8 card-shadow m-4 overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
+        <div class="bg-white w-full max-w-xl rounded-3xl p-8 card-shadow m-4 overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-6 border-b pb-4">
                 <div>
-                    <h2 id="modal-unit-name" class="text-2xl font-black text-slate-900 uppercase italic">Unidade</h2>
-                    <p id="modal-unit-gp" class="text-sm text-slate-500 font-bold uppercase mt-1"></p>
+                    <h2 id="modal-unit-name" class="text-xl font-black text-slate-900 uppercase italic">Unidade</h2>
+                    <p id="modal-unit-gp" class="text-[10px] text-slate-500 font-bold uppercase"></p>
                 </div>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-900 text-3xl font-bold">&times;</button>
+                <button onclick="closeModal()" class="text-slate-400 text-3xl">&times;</button>
             </div>
-            <div id="modal-criteria-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                </div>
-            <div class="bg-slate-100 p-4 rounded-xl flex justify-between items-center border border-slate-200">
-                <span class="text-[10px] font-bold text-slate-500 uppercase">Score Geral Recalculado</span>
-                <span id="modal-total-score" class="text-2xl font-black text-slate-900"></span>
+            <div id="modal-criteria-list" class="grid grid-cols-1 gap-2 mb-6"></div>
+            <div class="bg-slate-100 p-4 rounded-xl flex justify-between items-center">
+                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Score Final (13 Pilares)</span>
+                <span id="modal-total-score" class="text-xl font-black"></span>
             </div>
         </div>
     </div>
@@ -181,19 +180,15 @@
         async function startDashboard() {
             try {
                 const response = await fetch(CONFIG.CSV_URL);
-                if (!response.ok) throw new Error();
                 const csvText = await response.text();
-                
                 processData(csvText);
-                
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
                 document.body.style.overflow = 'auto';
-                
                 renderDashboard();
             } catch (err) {
                 document.getElementById('loading-msg').style.display = 'none';
-                document.getElementById('error-msg').innerText = "Erro ao conectar com a planilha. Verifique se o link CSV está correto.";
+                document.getElementById('error-msg').innerText = "Erro ao conectar com a planilha.";
                 document.getElementById('error-msg').style.display = 'block';
             }
         }
@@ -212,8 +207,9 @@
             });
 
             headers = rows[0];
-            const dataRows = rows.slice(1, 203);
+            const dataRows = rows.slice(1, 203); // 202 Unidades licenciadas
 
+            // Índices dos 13 pilares operacionais
             const critIndices = [3,4,5,6,7,8,9,10,11,12,13,14,15]; 
             let critSums = new Array(13).fill(0);
 
@@ -227,7 +223,7 @@
                     details.push({ label: headers[idx].split('-').pop().trim(), score: val });
                 });
                 
-                const score = sum / 13;
+                const score = sum / 13; // Recálculo sobre 13 pilares
                 let rid = 'critical', rlabel = 'Risco Crítico';
                 if(score >= 2.80) { rid = 'healthy'; rlabel = 'Saudável'; }
                 else if(score >= 2.30) { rid = 'satisfatory'; rlabel = 'Estável'; }
@@ -237,7 +233,7 @@
                     name: row[0], gp: (row[1] || 'N/A').trim(),
                     score: score, risk_id: rid, risk_label: rlabel,
                     details: details,
-                    diag: score >= 2.80 ? "Operação de excelência técnica." : "Ponto de atenção em pilares específicos."
+                    diag: score >= 2.80 ? "Operação de excelência." : "Atenção em critérios específicos."
                 };
             });
 
@@ -290,79 +286,4 @@
             const dist = ['healthy','satisfatory','warning','critical'].map(id => rawUnits.filter(u => u.risk_id === id).length);
             new Chart(document.getElementById('chart-doughnut'), {
                 type: 'doughnut',
-                data: { labels: ['Saudáveis','Estáveis','Alerta','Críticas'], datasets: [{ data: dist, backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'], borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }, cutout: '75%' }
-            });
-
-            const gps = [...new Set(rawUnits.map(u => u.gp))].sort();
-            new Chart(document.getElementById('chart-manager'), {
-                type: 'bar',
-                data: {
-                    labels: gps,
-                    datasets: [
-                        { label: 'Saudáveis', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'healthy').length), backgroundColor: '#10B981' },
-                        { label: 'Estáveis', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'satisfatory').length), backgroundColor: '#3B82F6' },
-                        { label: 'Alerta', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'warning').length), backgroundColor: '#F59E0B' },
-                        { label: 'Críticas', data: gps.map(g => rawUnits.filter(u => u.gp === g && u.risk_id === 'critical').length), backgroundColor: '#EF4444' }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } }, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } } }
-            });
-        }
-
-        function renderUnits() {
-            const filter = document.getElementById('select-filter').value;
-            const search = document.getElementById('input-search').value.toLowerCase();
-            const grid = document.getElementById('unit-grid');
-
-            grid.innerHTML = rawUnits
-                .filter(u => (filter === 'all' || u.risk_id === filter) && (u.name.toLowerCase().includes(search) || u.gp.toLowerCase().includes(search)))
-                .map((u, index) => {
-                    const color = u.risk_id === 'healthy' ? 'emerald' : u.risk_id === 'satisfatory' ? 'blue' : u.risk_id === 'warning' ? 'amber' : 'red';
-                    return `
-                    <div onclick="openModal(${index})" class="bg-white p-6 rounded-2xl border border-slate-200 card-shadow flex flex-col justify-between cursor-pointer hover:border-blue-600 transition-all group">
-                        <div>
-                            <div class="flex justify-between items-start mb-4">
-                                <h4 class="font-bold text-[10px] uppercase text-slate-900 leading-tight group-hover:text-blue-700">${u.name}</h4>
-                                <span class="text-[7px] px-2 py-0.5 rounded font-black uppercase bg-${color}-100 text-${color}-700 border border-${color}-200">${u.risk_label}</span>
-                            </div>
-                            <p class="text-[9px] text-slate-400 mb-2 italic">Gestor: ${u.gp}</p>
-                            <p class="text-[9px] text-slate-600 bg-slate-50 p-3 rounded-lg border-l-2 border-slate-200 italic line-clamp-2">"${u.diag}"</p>
-                        </div>
-                        <div class="mt-4 flex justify-between items-center border-t pt-4">
-                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Global Score</span>
-                            <span class="text-sm font-black text-slate-700">${u.score.toFixed(2)}</span>
-                        </div>
-                    </div>`;
-                }).join('');
-        }
-
-        // Funções do Modal
-        window.openModal = function(idx) {
-            const u = rawUnits[idx];
-            document.getElementById('modal-unit-name').innerText = u.name;
-            document.getElementById('modal-unit-gp').innerText = "Responsável: " + u.gp;
-            document.getElementById('modal-total-score').innerText = u.score.toFixed(2);
-            
-            const list = document.getElementById('modal-criteria-list');
-            list.innerHTML = u.details.map(d => `
-                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <span class="text-[10px] font-bold text-slate-500 uppercase">${d.label}</span>
-                    <span class="text-xs font-black ${d.score >= 2.8 ? 'text-emerald-600' : d.score >= 2.3 ? 'text-blue-600' : 'text-red-600'}">${d.score.toFixed(1)}</span>
-                </div>
-            `).join('');
-
-            document.getElementById('modal-overlay').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        window.closeModal = function() {
-            document.getElementById('modal-overlay').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-
-        document.getElementById('input-search').addEventListener('input', renderUnits);
-        document.getElementById('select-filter').addEventListener('change', renderUnits);
-    </script>
-</body>
-</html>
+                data: { labels: ['Saudáveis','
