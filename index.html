@@ -5,7 +5,7 @@
     <title>NBA Basketball School - Centro de Comando</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #051c2c; margin: 0; overflow: hidden; }
         h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
@@ -22,11 +22,36 @@
         }
 
         .app-container { display: flex; height: 100vh; width: 100vw; }
-        .sidebar { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1); }
-        .main-content { flex-grow: 1; overflow-y: auto; background-color: #051c2c; }
+        
+        .sidebar { 
+            width: 260px; 
+            flex-shrink: 0; 
+            display: flex; 
+            flex-direction: column; 
+            border-right: 1px solid rgba(255,255,255,0.1); 
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .sidebar.collapsed { width: 80px; }
+
+        .main-content { flex-grow: 1; overflow-y: auto; background-color: #051c2c; display: flex; flex-direction: column; }
+        .main-content.no-scroll { overflow-y: hidden; height: 100vh; }
+
+        .menu-category {
+            padding: 1.5rem 1.5rem 0.5rem;
+            color: rgba(255,255,255,0.25);
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .sidebar.collapsed .menu-category { visibility: hidden; padding: 1rem 0; }
 
         .menu-item {
-            padding: 1rem 1.5rem;
+            padding: 0.8rem 1.5rem;
             color: rgba(255,255,255,0.4);
             cursor: pointer;
             border-left: 4px solid transparent;
@@ -35,7 +60,15 @@
             text-transform: uppercase;
             font-size: 0.7rem;
             letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow: hidden;
+            white-space: nowrap;
         }
+        .sidebar.collapsed .menu-item { padding: 1rem; justify-content: center; border-left: none; }
+        .sidebar.collapsed .menu-item span.sidebar-text { display: none; }
+        
         .menu-item:hover { background: rgba(255,255,255,0.05); color: white; }
         .menu-item.active { 
             background: rgba(255,255,255,0.1); 
@@ -53,10 +86,38 @@
         .main-content::-webkit-scrollbar-thumb { background: #1D428A; border-radius: 10px; }
         
         .methodology-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); }
-        
-        /* Ajuste do Logo */
         .nba-main-logo { width: 180px; height: auto; object-fit: contain; }
-        .sidebar-logo { width: 140px; height: auto; object-fit: contain; }
+        .sidebar-logo { width: 140px; height: auto; object-fit: contain; transition: width 0.3s; }
+        .sidebar.collapsed .sidebar-logo { width: 40px; }
+
+        .progress-container { width: 100%; background: #f1f5f9; height: 10px; border-radius: 99px; overflow: hidden; }
+        .progress-fill { height: 100%; transition: width 0.8s ease-in-out; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .toggle-btn {
+            position: absolute;
+            top: 15px;
+            right: -15px;
+            width: 30px;
+            height: 30px;
+            background: #C9082A;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 50;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 2px solid #051c2c;
+            transition: transform 0.3s;
+        }
+        .sidebar.collapsed .toggle-btn { transform: rotate(180deg); }
+
+        .tv-card { background: white; padding: 1.25rem; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-left: 6px solid; }
     </style>
 </head>
 <body>
@@ -64,33 +125,28 @@
     <!-- TELA DE LOGIN -->
     <div id="login-overlay">
         <div class="bg-white/10 backdrop-blur-md p-10 rounded-3xl border border-white/20 text-center max-w-sm w-full card-shadow">
-            <!-- Logo Oficial NBA Basketball School -->
             <img src="https://drive.google.com/uc?id=16nIhctvzDyGg_GsrnheGemWfcVPW9yd_" alt="NBA Basketball School" class="nba-main-logo mx-auto mb-8">
-            <h1 class="text-2xl font-black italic uppercase mb-2 leading-none text-white">NBA BASKETBALL SCHOOL</h1>
-            <p class="text-[9px] opacity-60 uppercase mb-8 tracking-[0.2em] text-white font-medium">Integrated Management Hub</p>
+            <h1 class="text-2xl font-black italic uppercase mb-2 leading-none text-white">NBA SCHOOL</h1>
+            <p class="text-[9px] opacity-60 uppercase mb-8 tracking-[0.2em] text-white font-medium">Command Center</p>
             <input type="password" id="pass-field" class="w-full p-3 rounded-lg bg-white text-slate-900 font-bold text-center outline-none mb-4 shadow-inner" placeholder="CÓDIGO DE ACESSO">
-            <button onclick="handleLogin()" class="w-full p-3 nba-red text-white font-black rounded-lg uppercase hover:brightness-110 transition-all shadow-lg">Entrar no Sistema</button>
+            <button onclick="handleLogin()" class="w-full p-3 nba-red text-white font-black rounded-lg uppercase hover:brightness-110 transition-all shadow-lg">Acessar Sistema</button>
             <p id="error-msg" class="text-red-500 text-xs mt-4 hidden font-bold">Código inválido.</p>
         </div>
     </div>
 
-    <!-- MODAL DE DETALHES -->
+    <!-- MODAL -->
     <div id="modal-overlay" onclick="closeModal()">
         <div class="bg-white w-full max-w-2xl rounded-3xl p-8 card-shadow m-4 overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-6 border-b pb-4 border-slate-100">
                 <div>
-                    <h2 id="modal-unit-name" class="text-xl font-black text-slate-900 uppercase italic leading-tight">Unidade</h2>
+                    <h2 id="modal-unit-name" class="text-xl font-black text-slate-900 uppercase italic leading-tight">Título</h2>
                     <p id="modal-unit-gp" class="text-[10px] text-slate-500 font-bold uppercase mt-1"></p>
                 </div>
                 <button onclick="closeModal()" class="text-slate-400 text-3xl leading-none hover:text-slate-600 transition-colors">&times;</button>
             </div>
-            <div id="modal-risk-banner" class="mb-6 p-4 rounded-xl flex items-center justify-between hidden">
-                <span class="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Análise de Risco Operacional</span>
-                <span id="modal-risk-tag" class="px-4 py-1 rounded-full text-white text-[10px] font-black uppercase shadow-sm"></span>
-            </div>
             <div id="modal-criteria-list" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8"></div>
             <div id="modal-footer-score" class="bg-slate-100 p-5 rounded-2xl flex justify-between items-center border border-slate-200">
-                <span id="modal-score-label" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pontuação</span>
+                <span id="modal-score-label" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Métrica</span>
                 <span id="modal-total-score" class="text-2xl font-black text-slate-900"></span>
             </div>
         </div>
@@ -98,45 +154,59 @@
 
     <!-- APP PRINCIPAL -->
     <div class="app-container" id="app-container" style="display:none;">
-        <aside class="sidebar nba-blue shadow-2xl">
-            <div class="p-8 border-b border-white/10 flex flex-col items-center">
-                <!-- Logo Sidebar -->
+        <aside class="sidebar nba-blue shadow-2xl" id="main-sidebar">
+            <div class="toggle-btn" onclick="toggleSidebar()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </div>
+
+            <div class="p-8 border-b border-white/10 flex flex-col items-center sidebar-logo-container">
                 <img src="https://drive.google.com/uc?id=16nIhctvzDyGg_GsrnheGemWfcVPW9yd_" alt="NBA Basketball School" class="sidebar-logo mb-2">
             </div>
-            <nav class="mt-6 flex-grow">
-                <div class="menu-item active" id="menu-home" onclick="switchView('home')">
-                    <div class="flex items-center gap-3">
-                        <span class="w-2 h-2 rounded-full bg-white shadow-[0_0_10px_white]"></span>
-                        Visão Geral
-                    </div>
+            
+            <nav class="mt-2 flex-grow overflow-y-auto">
+                <div class="menu-category">Geral - NBS</div>
+                <div class="menu-item active" id="menu-nbs" onclick="switchView('nbs')">
+                    <span class="w-2 h-2 shrink-0 rounded-full bg-white shadow-[0_0_8px_white]"></span>
+                    <span class="sidebar-text">Visão Geral - NBS</span>
+                </div>
+
+                <div class="menu-category">Atendimento</div>
+                <div class="menu-item" id="menu-home" onclick="switchView('home')">
+                    <span class="w-2 h-2 shrink-0 rounded-full bg-slate-500"></span>
+                    <span class="sidebar-text">Visão Geral</span>
                 </div>
                 <div class="menu-item" id="menu-semaforo" onclick="switchView('semaforo')">
-                    <div class="flex items-center gap-3">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        Semáforo
-                    </div>
+                    <span class="w-2 h-2 shrink-0 rounded-full bg-emerald-500"></span>
+                    <span class="sidebar-text">Semáforo</span>
                 </div>
                 <div class="menu-item" id="menu-diagnostico" onclick="switchView('diagnostico')">
-                    <div class="flex items-center gap-3">
-                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                        Diagnóstico
-                    </div>
+                    <span class="w-2 h-2 shrink-0 rounded-full bg-blue-500"></span>
+                    <span class="sidebar-text">Diagnóstico</span>
+                </div>
+
+                <div class="menu-category">Eventos</div>
+                <div class="menu-item" id="menu-eventos" onclick="switchView('eventos')">
+                    <span class="w-2 h-2 shrink-0 rounded-full bg-orange-500"></span>
+                    <span class="sidebar-text">Eventos</span>
                 </div>
             </nav>
-            <div class="p-6 border-t border-white/10 text-center text-[8px] text-white/20 uppercase font-bold tracking-widest italic">
-                Hub Integrado v3.2
+            
+            <div class="p-6 border-t border-white/10 text-center text-[8px] text-white/20 uppercase font-bold italic tracking-widest sidebar-text">
+                Integrated Hub v3.13
             </div>
         </aside>
 
-        <main class="main-content">
-            <header class="nba-blue text-white py-8 px-10 border-b-4 border-red-600 sticky top-0 z-10 shadow-2xl">
+        <main class="main-content" id="main-scroll-control">
+            <header class="nba-blue text-white py-6 px-10 border-b-4 border-red-600 sticky top-0 z-10 shadow-2xl">
                 <div class="flex justify-between items-center">
                     <div>
                         <h1 id="view-title" class="text-2xl font-black italic uppercase leading-none tracking-tight">Home</h1>
-                        <p id="view-subtitle" class="opacity-60 text-[10px] uppercase mt-2 tracking-widest italic font-medium">Hub de Monitoramento</p>
+                        <p id="view-subtitle" class="opacity-60 text-[10px] uppercase mt-2 tracking-widest italic font-medium">Sincronizando Inteligência...</p>
                     </div>
                     <div class="flex gap-3">
-                        <div class="bg-white/5 px-6 py-3 rounded-2xl border border-white/10 text-center min-w-[200px]">
+                        <div class="bg-white/5 px-6 py-2 rounded-2xl border border-white/10 text-center min-w-[200px]">
                             <p id="stat-label" class="text-[8px] opacity-60 uppercase font-bold text-white/70">Rede</p>
                             <p id="stat-total-units" class="text-xl font-black tracking-tighter text-white">0 / 0</p>
                         </div>
@@ -144,64 +214,56 @@
                 </div>
             </header>
 
-            <div class="p-10 space-y-12">
-                <!-- KPIs DINÂMICOS -->
-                <div id="home-kpi-block" class="hidden space-y-10">
-                    <div class="space-y-4">
-                        <h3 class="text-white text-[10px] font-black uppercase tracking-[0.3em] opacity-40 italic">Performance Técnica (Semáforo)</h3>
-                        <div id="kpi-tech-row" class="grid grid-cols-1 md:grid-cols-4 gap-6"></div>
-                    </div>
-                    <div class="space-y-4">
-                        <h3 class="text-white text-[10px] font-black uppercase tracking-[0.3em] opacity-40 italic">Exposição de Risco (Diagnóstico)</h3>
-                        <div id="kpi-risk-row" class="grid grid-cols-1 md:grid-cols-4 gap-6"></div>
-                    </div>
-                </div>
-
-                <div id="standard-kpi-block" class="grid grid-cols-1 md:grid-cols-4 gap-6"></div>
-
-                <div id="view-container" class="space-y-12"></div>
+            <div class="p-8 space-y-10 flex-grow" id="content-padding-fix">
+                <!-- KPI Zone (Top KPIs) -->
+                <div id="kpi-zone" class="grid grid-cols-1 md:grid-cols-4 gap-6"></div>
                 
-                <div id="methodology-section" class="hidden pb-20"></div>
+                <!-- Main Content Area -->
+                <div id="view-container" class="space-y-10"></div>
+                
+                <!-- Methodology Section -->
+                <div id="methodology-section" class="hidden pb-10"></div>
             </div>
         </main>
     </div>
 
     <script>
-        // --- ESTADO GLOBAL E CONFIGURAÇÃO ---
-        let currentView = 'home';
-        let fullData = { semaforo: [], diagnostico: [] };
+        // --- ESTADO GLOBAL ---
+        let currentView = 'nbs';
+        let fullData = { semaforo: [], diagnostico: [], eventos: [] };
         let charts = [];
 
         const CONFIG = {
             SEMAFORO_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDFJ9sP_Kp-iAAgRQBUbJm1fzPVdFPiPgvMCc_iJL2VzJptbIfKg66_stnvNWJv2AgA5WAm8uPMD3Y/pub?gid=0&single=true&output=csv',
-            DIAGNOSTICO_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQU-f6svRhAHgVeGhhZvAl48bru-eZYbOmb8qWCnImPe79IN_Yg9cM7RetTeQ6gBagbOsMj-62rsTIg/pub?gid=664543312&single=true&output=csv', 
+            DIAGNOSTICO_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQU-f6svRhAHgVeGhhZvAl48bru-eZYbOmb8qWCnImPe79IN_Yg9cM7RetTeQ6gBagbOsMj-62rsTIg/pub?gid=664543312&single=true&output=csv',
+            EVENTOS_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvITKm2kGIIFfZoz9jk_My5uGW6ncZu2vQCFIk2bp6h4wg0Fu5JhavKDMJDR0h6CowoYY1Wt_uHQms/pub?gid=0&single=true&output=csv',
             PASSWORD: 'Ts_240518'
         };
 
+        function toggleSidebar() {
+            document.getElementById('main-sidebar').classList.toggle('collapsed');
+        }
+
         function handleLogin() {
-            const field = document.getElementById('pass-field');
-            if (field.value === CONFIG.PASSWORD) {
+            if (document.getElementById('pass-field').value === CONFIG.PASSWORD) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('app-container').style.display = 'flex';
                 initApp();
-            } else { 
-                document.getElementById('error-msg').classList.remove('hidden'); 
-            }
+            } else { document.getElementById('error-msg').classList.remove('hidden'); }
         }
 
-        document.getElementById('pass-field').addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
-
         async function initApp() {
-            await Promise.all([loadBase('semaforo'), loadBase('diagnostico')]);
+            await Promise.all([loadBase('semaforo'), loadBase('diagnostico'), loadBase('eventos')]);
             renderView();
         }
 
         async function loadBase(view) {
             try {
-                const res = await fetch(view === 'semaforo' ? CONFIG.SEMAFORO_URL : CONFIG.DIAGNOSTICO_URL);
+                const url = view === 'semaforo' ? CONFIG.SEMAFORO_URL : (view === 'diagnostico' ? CONFIG.DIAGNOSTICO_URL : CONFIG.EVENTOS_URL);
+                const res = await fetch(url);
                 const txt = await res.text();
                 fullData[view] = parseBase(txt, view);
-            } catch (e) { console.error("Base Error: " + view); }
+            } catch (e) { console.error("Error loading " + view); }
         }
 
         function parseBase(csv, view) {
@@ -216,32 +278,43 @@
             }
             if (f || rD.length) { rD.push(f); rows.push(rD); }
 
-            // DETECÇÃO DINÂMICA DE CABEÇALHO PARA EVITAR NOMES "3"
+            if (view === 'eventos') {
+                return rows.slice(1).filter(r => r.length > 5 && r[0]).map(row => {
+                    const reg = parseInt(row[6]) || 0;
+                    const cap = parseInt(row[7]) || 0;
+                    return {
+                        name: row[0], location: row[1], state: row[2], date: row[3], category: row[4], status: row[5],
+                        registered: reg, capacity: cap,
+                        fill_rate: cap > 0 ? (reg / cap) * 100 : 0
+                    };
+                });
+            }
+
             let headerIdx = 0;
-            for(let i=0; i<rows.length; i++) {
-                const rowStr = rows[i].join('|').toLowerCase();
-                if(rowStr.includes('unidade') || rowStr.includes('gp')) { headerIdx = i; break; }
+            for(let i=0; i<Math.min(rows.length, 5); i++) {
+                const check = rows[i].join('|').toLowerCase();
+                if(check.includes('unidade') || check.includes('gp')) { headerIdx = i; break; }
             }
             const headers = rows[headerIdx] || [];
-            const data = rows.slice(headerIdx + 1);
+            const dataRows = rows.slice(headerIdx + 1);
 
             if (view === 'semaforo') {
                 const cIdx = [3,4,5,6,7,8,9,10,11,12,13,14,15];
-                return data.filter(r => r.length > 5 && r[0]).map(row => {
-                    let s = 0, det = [];
+                return dataRows.filter(r => r.length > 5 && r[0]).map(row => {
+                    let sum = 0, details = [];
                     cIdx.forEach(idx => {
-                        const val = parseFloat(row[idx]) || 0; s += val;
-                        let h = (headers[idx] || `Coluna ${idx}`).trim();
-                        if (h.includes('-')) h = h.split('-').pop().trim();
-                        det.push({ label: h, score: val });
+                        const v = parseFloat(row[idx]) || 0; sum += v;
+                        let label = (headers[idx] || "Atributo").trim();
+                        if (label.includes('-')) label = label.split('-').pop().trim();
+                        details.push({ label, score: v });
                     });
-                    const avg = s / 13;
-                    return { name: row[0], gp: row[1], score: avg, rid: avg >= 2.8 ? 'healthy' : avg >= 2.3 ? 'satisfatory' : avg >= 2.0 ? 'warning' : 'critical', details: det };
+                    const avg = sum / 13;
+                    return { name: row[0], gp: row[1], score: avg, rid: avg >= 2.8 ? 'healthy' : avg >= 2.3 ? 'satisfatory' : avg >= 2.0 ? 'warning' : 'critical', details };
                 });
             } else {
-                const qLabs = ["Planejamento anual", "Mapeamento de marca", "Renovação", "Oportunidades", "Pontos fortes", "Pontos Fracos", "Principais estratégias", "Uso da metodologia", "Relacionamento geral", "Uniformização"];
-                return data.filter(r => r.length > 2 && r[1]).slice(0, 124).map(row => {
+                return dataRows.filter(r => r.length > 2 && r[1]).slice(0, 124).map(row => {
                     let qDet = [];
+                    const qLabs = ["Planejamento anual", "Mapeamento de marca", "Renovação", "Oportunidades", "Pontos fortes", "Pontos Fracos", "Principais estratégias", "Uso da metodologia", "Relacionamento geral", "Uniformização"];
                     qLabs.forEach((l, i) => qDet.push({ label: l, text: row[i+2] || "" }));
                     const risk = isolatedRiskAnalysis(qDet);
                     return { name: row[1], gp: row[0], details: qDet, risk_score: risk.score, rid: risk.id, rlabel: risk.label, color: risk.color };
@@ -251,17 +324,24 @@
 
         function isolatedRiskAnalysis(details) {
             const hImpact = ["Renovação", "Relacionamento geral", "Uso da metodologia", "Pontos Fracos"];
-            const fCrit = ['cancelar', 'churn', 'parar', 'não responde', 'inadimplente', 'frio', 'desgaste', 'abandonou', 'sem retorno', 'jurídico'];
-            const fMod = ['atraso', 'problema', 'difícil', 'lento', 'falta', 'baixo', 'insatisfeito', 'irregular', 'defasada', 'resistência', 'demora'];
-            let score = 0, delinq = false;
+            const severeTerms = ['cancelar', 'churn', 'parar', 'não responde', 'frio', 'desgaste', 'abandonou', 'sem retorno', 'jurídico', 'encerrar'];
+            const delinquencyTerms = ['inadimplente', 'inadimplência', 'pendência', 'débito', 'atraso financeiro', 'não pagou', 'vencido'];
+            const mildTerms = ['atraso', 'problema', 'difícil', 'lento', 'falta', 'baixo', 'insatisfeito', 'irregular', 'defasada', 'resistência', 'demora'];
+            
+            let score = 0;
+            let delinqForceCritical = false;
+
             details.forEach(d => {
                 const t = (d.text || "").toLowerCase();
-                if(t.includes('inadimplente') || t.includes('inadimplência') || t.includes('não pagou')) delinq = true;
-                fCrit.forEach(w => { if(t.includes(w)) score += hImpact.includes(d.label) ? 3.5 : 2.0; });
-                fMod.forEach(w => { if(t.includes(w)) score += hImpact.includes(d.label) ? 1.5 : 0.8; });
+                const isHighImpact = hImpact.includes(d.label);
+                if(delinquencyTerms.some(term => t.includes(term))) delinqForceCritical = true;
+                severeTerms.forEach(w => { if(t.includes(w)) score += isHighImpact ? 3.5 : 2.0; });
+                mildTerms.forEach(w => { if(t.includes(w)) score += isHighImpact ? 1.5 : 0.8; });
             });
-            if (delinq) score = 10;
+
+            if (delinqForceCritical) score = 10;
             score = Math.min(10, parseFloat(score.toFixed(1)));
+
             if (score >= 8) return { id: 'critico', label: 'Crítico', color: '#EF4444', score };
             if (score >= 6) return { id: 'alto', label: 'Alto', color: '#F59E0B', score };
             if (score >= 3) return { id: 'medio', label: 'Médio', color: '#3B82F6', score };
@@ -271,240 +351,220 @@
         function switchView(view) {
             currentView = view;
             document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-            const activeMenu = document.getElementById('menu-' + view);
-            if (activeMenu) activeMenu.classList.add('active');
+            const menu = document.getElementById('menu-' + view);
+            if (menu) menu.classList.add('active');
             renderView();
         }
 
         function renderView() {
             const container = document.getElementById('view-container');
-            const kpiMain = document.getElementById('standard-kpi-block');
-            const kpiHome = document.getElementById('home-kpi-block');
+            const kpiZone = document.getElementById('kpi-zone');
             const statL = document.getElementById('stat-label');
             const statV = document.getElementById('stat-total-units');
-            const subtitle = document.getElementById('view-subtitle');
             const title = document.getElementById('view-title');
+            const scroller = document.getElementById('main-scroll-control');
+            const methodology = document.getElementById('methodology-section');
 
             charts.forEach(c => c.destroy()); charts = [];
+            scroller.classList.remove('no-scroll');
+            methodology.classList.add('hidden');
+            kpiZone.innerHTML = '';
+            container.innerHTML = '';
 
-            if (currentView === 'home') {
+            if (currentView === 'nbs') {
+                title.innerText = 'Visão Geral - NBS';
+                scroller.classList.add('no-scroll');
+                statL.innerText = 'Monitoramento'; statV.innerText = 'Ativo';
+                renderNBS();
+            } else if (currentView === 'home') {
                 title.innerText = 'Home';
-                subtitle.innerText = 'Consolidado Geral de Inteligência';
-                statL.innerText = 'Mapeamento | Diagnósticos';
+                statL.innerText = 'Rede | Diag';
                 statV.innerText = `${fullData.semaforo.length} | ${fullData.diagnostico.length}`;
-                kpiMain.classList.add('hidden');
-                kpiHome.classList.remove('hidden');
                 renderHome();
+                renderMethodology('home');
             } else if (currentView === 'semaforo') {
                 title.innerText = 'Semáforo';
-                subtitle.innerText = 'Auditoria Técnica Operacional';
-                statL.innerText = 'Unidades Mapeadas';
-                statV.innerText = fullData.semaforo.length;
-                kpiMain.classList.remove('hidden');
-                kpiHome.classList.add('hidden');
+                statL.innerText = 'Unidades'; statV.innerText = fullData.semaforo.length;
                 renderSemaforo();
-            } else {
+            } else if (currentView === 'diagnostico') {
                 title.innerText = 'Diagnóstico';
-                subtitle.innerText = 'Análise de Risco e Churn';
-                statL.innerText = 'Diagnósticos Realizados';
-                statV.innerText = fullData.diagnostico.length;
-                kpiMain.classList.remove('hidden');
-                kpiHome.classList.add('hidden');
+                statL.innerText = 'Relatórios'; statV.innerText = fullData.diagnostico.length;
                 renderDiagnostico();
+                renderMethodology('diagnostico');
+            } else {
+                title.innerText = 'Eventos';
+                const act = fullData.eventos.filter(e => !e.status.toLowerCase().includes('realizado'));
+                statL.innerText = 'Insc | Vagas';
+                statV.innerText = `${act.reduce((a,b)=>a+b.registered, 0)} | ${act.reduce((a,b)=>a+b.capacity, 0)}`;
+                renderEventos();
             }
+        }
+
+        function renderNBS() {
+            const sem = fullData.semaforo;
+            const dia = fullData.diagnostico;
+            const open = fullData.eventos.filter(e => e.status.toLowerCase().includes('aberta'));
+
+            const sC = { h: sem.filter(u=>u.rid==='healthy').length, s: sem.filter(u=>u.rid==='satisfatory').length, w: sem.filter(u=>u.rid==='warning').length, c: sem.filter(u=>u.rid==='critical').length };
+            const dC = { b: dia.filter(u=>u.rid==='baixo').length, m: dia.filter(u=>u.rid==='medio').length, a: dia.filter(u=>u.rid==='alto').length, c: dia.filter(u=>u.rid==='critico').length };
+
+            document.getElementById('view-container').innerHTML = `
+                <div class="grid grid-cols-1 gap-6 h-full">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <h3 class="text-white text-[11px] font-black uppercase tracking-[0.3em] opacity-40">ATENDIMENTO - SEMÁFORO</h3>
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="tv-card border-emerald-500 text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Saudáveis</p><h4 class="text-2xl font-black text-emerald-600">${sC.h}</h4></div>
+                                <div class="tv-card border-blue-500 text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Estáveis</p><h4 class="text-2xl font-black text-blue-600">${sC.s}</h4></div>
+                                <div class="tv-card border-amber-500 text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Alerta</p><h4 class="text-2xl font-black text-amber-500">${sC.w}</h4></div>
+                                <div class="tv-card border-red-500 text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Críticas</p><h4 class="text-2xl font-black text-red-600">${sC.c}</h4></div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <h3 class="text-white text-[11px] font-black uppercase tracking-[0.3em] opacity-40">ATENDIMENTO - DIAGNÓSTICO</h3>
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="tv-card border-emerald-500 text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Risco Baixo</p><h4 class="text-2xl font-black text-emerald-600">${dC.b}</h4></div>
+                                <div class="tv-card border-blue-500 text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Risco Médio</p><h4 class="text-2xl font-black text-blue-600">${dC.m}</h4></div>
+                                <div class="tv-card border-amber-500 text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Risco Alto</p><h4 class="text-2xl font-black text-amber-500">${dC.a}</h4></div>
+                                <div class="tv-card border-red-500 text-center"><p class="text-[8px] font-bold text-slate-400 uppercase text-red-600">Crítico</p><h4 class="text-2xl font-black text-red-600">${dC.c}</h4></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-3xl card-shadow w-full flex-grow overflow-hidden flex flex-col">
+                        <h3 class="text-slate-800 text-[11px] font-black uppercase tracking-[0.3em] mb-6">EVENTOS - RESULTADOS DOS EVENTOS</h3>
+                        <div class="grid grid-cols-2 gap-x-12 gap-y-4 overflow-hidden">
+                            ${open.slice(0, 10).map(e => {
+                                const rate = Math.min(100, parseFloat(e.fill_rate));
+                                let col = '#EF4444'; if (rate >= 100) col = '#3B82F6'; else if (rate >= 80) col = '#10B981'; else if (rate >= 51) col = '#F59E0B';
+                                return `<div class="space-y-1"><div class="flex justify-between items-center"><div><h4 class="font-bold text-[10px] text-slate-800 uppercase leading-none">${e.name}</h4><p class="text-[8px] text-slate-400 uppercase">${e.location}</p></div><div class="text-right"><span class="text-[10px] font-black text-slate-700">${e.registered} / ${e.capacity}</span></div></div><div class="progress-container h-2 shadow-inner"><div class="progress-fill" style="width: ${rate}%; background-color: ${col}"></div></div></div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>`;
         }
 
         function renderHome() {
             const sem = fullData.semaforo;
             const dia = fullData.diagnostico;
+            const sC = { h: sem.filter(u=>u.rid==='healthy').length, c: sem.filter(u=>u.rid==='critical').length };
+            const dC = { b: dia.filter(u=>u.rid==='baixo').length, c: dia.filter(u=>u.rid==='critico').length };
 
-            const sC = { h: sem.filter(u=>u.rid==='healthy').length, s: sem.filter(u=>u.rid==='satisfatory').length, w: sem.filter(u=>u.rid==='warning').length, c: sem.filter(u=>u.rid==='critical').length };
-            document.getElementById('kpi-tech-row').innerHTML = `
-                <div class="bg-white p-5 rounded-2xl border-l-4 border-emerald-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Saudáveis</p><h4 class="text-2xl font-black text-emerald-600">${sC.h}</h4></div>
-                <div class="bg-white p-5 rounded-2xl border-l-4 border-blue-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Estáveis</p><h4 class="text-2xl font-black text-blue-600">${sC.s}</h4></div>
-                <div class="bg-white p-5 rounded-2xl border-l-4 border-amber-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Alerta</p><h4 class="text-2xl font-black text-amber-500">${sC.w}</h4></div>
-                <div class="bg-white p-5 rounded-2xl border-l-4 border-red-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Críticas</p><h4 class="text-2xl font-black text-red-600">${sC.c}</h4></div>
+            document.getElementById('kpi-zone').innerHTML = `
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-emerald-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Saudáveis (Técnico)</p><h3 class="text-3xl font-black mt-1 text-emerald-600">${sC.h}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-red-600 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Crítico (Técnico)</p><h3 class="text-3xl font-black mt-1 text-red-600">${sC.c}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-blue-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Saudável (Risco)</p><h3 class="text-3xl font-black mt-1 text-blue-600">${dC.b}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-orange-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Crítico (Risco)</p><h3 class="text-3xl font-black mt-1 text-orange-600">${dC.c}</h3></div>
             `;
 
-            const dC = { b: dia.filter(u=>u.rid==='baixo').length, m: dia.filter(u=>u.rid==='medio').length, a: dia.filter(u=>u.rid==='alto').length, c: dia.filter(u=>u.rid==='critico').length };
-            document.getElementById('kpi-risk-row').innerHTML = `
-                <div class="bg-white p-5 rounded-2xl border-l-4 border-emerald-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Risco Baixo</p><h4 class="text-2xl font-black text-emerald-600">${dC.b}</h4></div>
-                <div class="bg-white p-5 rounded-2xl border-l-4 border-blue-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Risco Médio</p><h4 class="text-2xl font-black text-blue-600">${dC.m}</h4></div>
-                <div class="bg-white p-5 rounded-2xl border-l-4 border-amber-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Risco Alto</p><h4 class="text-2xl font-black text-amber-500">${dC.a}</h4></div>
-                <div class="bg-white p-5 rounded-2xl border-l-4 border-red-500 card-shadow text-center"><p class="text-[8px] font-bold text-slate-400 uppercase">Crítico</p><h4 class="text-2xl font-black text-red-600">${dC.c}</h4></div>
-            `;
-
-            document.getElementById('view-container').innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-10 rounded-3xl card-shadow">
-                        <h2 class="text-xl font-black text-slate-800 uppercase italic mb-8">Cruzamento Performance x Risco</h2>
-                        <div class="h-[350px]"><canvas id="chart-home-radar"></canvas></div>
-                    </div>
-                    <div class="bg-white p-10 rounded-3xl card-shadow flex flex-col">
-                        <h2 class="text-xl font-black text-slate-800 uppercase italic mb-6 border-b pb-4">Ações de Churn Prioritárias</h2>
-                        <div class="space-y-3 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
-                            ${dia.filter(u => u.rid === 'critico').slice(0, 15).map(u => `
-                                <div class="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100">
-                                    <span class="text-xs font-black text-slate-900 uppercase">${u.name}</span>
-                                    <span class="text-[8px] font-black uppercase text-red-600 bg-red-100 px-3 py-1 rounded-full">SCORE ${u.risk_score}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-            const gps = ["Andres", "Sara", "Gustavo", "Dayane"];
-            const radarChart = new Chart(document.getElementById('chart-home-radar'), {
-                type: 'radar',
-                data: {
-                    labels: gps,
-                    datasets: [
-                        { label: 'Saúde Técnica (x10)', data: gps.map(g => (sem.filter(u=>u.gp===g).reduce((a,b)=>a+b.score,0)/(sem.filter(u=>u.gp===g).length||1)*3.33)), borderColor: '#10B981', backgroundColor: '#10B98120' },
-                        { label: 'Risco Churn (0-10)', data: gps.map(g => (dia.filter(u=>u.gp===g).reduce((a,b)=>a+b.risk_score,0)/(dia.filter(u=>u.gp===g).length||1))), borderColor: '#EF4444', backgroundColor: '#EF444420' }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 10, ticks: { display: false } } } }
-            });
-            charts.push(radarChart);
-            renderMethodology('home');
+            document.getElementById('view-container').innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="bg-white p-10 rounded-3xl card-shadow"><h2 class="text-xl font-black text-slate-800 uppercase italic mb-8">Saúde 360° da Rede</h2><div class="h-[350px]"><canvas id="chart-home-radar"></canvas></div></div><div class="bg-white p-10 rounded-3xl card-shadow flex flex-col"><h2 class="text-xl font-black text-slate-800 uppercase italic mb-6 border-b pb-4">Prioridades de Churn</h2><div class="space-y-3 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">${dia.filter(u => u.rid === 'critico').map(u => `<div class="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100"><span class="text-xs font-black text-slate-900 uppercase">${u.name}</span><span class="text-[8px] font-black uppercase text-red-600 bg-red-100 px-3 py-1 rounded-full">SCORE ${u.risk_score}</span></div>`).join('')}</div></div></div>`;
+            charts.push(new Chart(document.getElementById('chart-home-radar'), { type: 'radar', data: { labels: ["Andres", "Sara", "Gustavo", "Dayane"], datasets: [ { label: 'Técnico', data: ["Andres", "Sara", "Gustavo", "Dayane"].map(g => (sem.filter(u=>u.gp===g).reduce((a,b)=>a+b.score,0)/(sem.filter(u=>u.gp===g).length||1)*3.33)), borderColor: '#10B981', backgroundColor: '#10B98120' }, { label: 'Risco', data: ["Andres", "Sara", "Gustavo", "Dayane"].map(g => (dia.filter(u=>u.gp===g).reduce((a,b)=>a+b.risk_score,0)/(dia.filter(u=>u.gp===g).length||1))), borderColor: '#EF4444', backgroundColor: '#EF444420' } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 10, ticks: { display: false } } } } }));
         }
 
         function renderSemaforo() {
-            renderStandardKPIs('semaforo');
-            document.getElementById('view-container').innerHTML = `
-                <div class="bg-white p-10 rounded-3xl card-shadow">
-                    <h2 class="text-xl font-black text-slate-800 uppercase italic mb-8 border-b pb-4">Performance Global da Rede</h2>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                        <div class="h-[400px]"><canvas id="chart-criteria"></canvas></div>
-                        <div id="grid-criteria" class="grid grid-cols-2 gap-3"></div>
-                    </div>
-                </div>
-                <div class="space-y-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-xl flex justify-between items-center gap-4 border border-white/10">
-                        <h2 class="text-xl font-black text-slate-800 uppercase italic">Unidades Mapeadas</h2>
-                        <div class="flex gap-2"><input type="text" id="view-search" oninput="filterList()" placeholder="Buscar..." class="px-4 py-2 bg-slate-100 rounded-lg outline-none text-sm w-64 shadow-inner"><select id="view-filter" onchange="filterList()" class="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold shadow-sm"><option value="all">Todos</option><option value="healthy">Saudáveis</option><option value="satisfatory">Estáveis</option><option value="warning">Alerta</option><option value="critical">Críticas</option></select></div>
-                    </div>
-                    <div id="view-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-20"></div>
-                </div>
-            `;
             const data = fullData.semaforo;
-            const cSum = new Array(13).fill(0);
-            data.forEach(u => u.details.forEach((d, i) => cSum[i] += d.score));
-            const stats = cSum.map((s, i) => { 
-                const avg = s / (data.length || 1); 
-                return { label: data[0]?.details[i]?.label || "Critério", score: avg, color: avg >= 2.8 ? '#10B981' : avg >= 2.3 ? '#3B82F6' : avg >= 2.0 ? '#F59E0B' : '#EF4444' }; 
-            }).sort((a,b) => b.score - a.score);
-            const barChart = new Chart(document.getElementById('chart-criteria'), { type: 'bar', data: { labels: stats.map(s => s.label), datasets: [{ data: stats.map(s => s.score), backgroundColor: stats.map(s => s.color), borderRadius: 6 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { min: 0, max: 3 } }, plugins: { legend: { display: false } } } });
-            charts.push(barChart);
+            const sC = { h: data.filter(u=>u.rid==='healthy').length, s: data.filter(u=>u.rid==='satisfatory').length, w: data.filter(u=>u.rid==='warning').length, c: data.filter(u=>u.rid==='critical').length };
+            document.getElementById('kpi-zone').innerHTML = `
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-emerald-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Saudáveis</p><h3 class="text-3xl font-black mt-1 text-emerald-600">${sC.h}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-blue-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Estáveis</p><h3 class="text-3xl font-black mt-1 text-blue-600">${sC.s}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-amber-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Alerta</p><h3 class="text-3xl font-black mt-1 text-amber-500">${sC.w}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-red-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Críticas</p><h3 class="text-3xl font-black mt-1 text-red-600">${sC.c}</h3></div>
+            `;
+            document.getElementById('view-container').innerHTML = `<div class="bg-white p-10 rounded-3xl card-shadow"><h2 class="text-xl font-black text-slate-800 uppercase italic mb-8 border-b pb-4">Performance Global</h2><div class="grid grid-cols-1 lg:grid-cols-2 gap-10"><div class="h-[400px]"><canvas id="chart-criteria"></canvas></div><div id="grid-criteria" class="grid grid-cols-2 gap-3"></div></div></div><div class="space-y-6"><div class="bg-white p-6 rounded-2xl shadow-xl flex justify-between items-center gap-4 border border-white/10"><h2 class="text-xl font-black text-slate-800 uppercase italic">Unidades</h2><div class="flex gap-2"><input type="text" id="view-search" oninput="filterList()" placeholder="Buscar..." class="px-4 py-2 bg-slate-100 rounded-lg outline-none text-sm w-64 shadow-inner"><select id="view-filter" onchange="filterList()" class="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold shadow-sm"><option value="all">Todos</option><option value="healthy">Saudáveis</option><option value="satisfatory">Estáveis</option><option value="warning">Alerta</option><option value="critical">Críticas</option></select></div></div><div id="view-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-20"></div></div>`;
+            const stats = new Array(13).fill(0).map((_, i) => { const avg = data.reduce((a,b)=>a+b.details[i].score,0)/data.length; return { label: data[0].details[i].label, score: avg, color: avg >= 2.8 ? '#10B981' : avg >= 2.3 ? '#3B82F6' : avg >= 2.0 ? '#F59E0B' : '#EF4444' }; }).sort((a,b)=>b.score-a.score);
+            charts.push(new Chart(document.getElementById('chart-criteria'), { type: 'bar', data: { labels: stats.map(s=>s.label), datasets: [{ data: stats.map(s=>s.score), backgroundColor: stats.map(s=>s.color), borderRadius: 6 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { min: 0, max: 3 } }, plugins: { legend: { display: false } } } }));
             document.getElementById('grid-criteria').innerHTML = stats.map(s => `<div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm"><span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">${s.label}</span><span class="text-xs font-black" style="color:${s.color}">${s.score.toFixed(2)}</span></div>`).join('');
             filterList();
         }
 
         function renderDiagnostico() {
-            renderStandardKPIs('diagnostico');
-            document.getElementById('view-container').innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-10 rounded-3xl card-shadow"><h2 class="text-xl font-black text-slate-800 uppercase italic mb-6">Matriz de Distribuição de Risco</h2><div class="h-[300px]"><canvas id="chart-risk-doughnut"></canvas></div></div>
-                    <div class="bg-white p-10 rounded-3xl card-shadow"><h2 class="text-xl font-black text-slate-800 uppercase italic mb-6">Exposição por Gestor</h2><div class="h-[300px]"><canvas id="chart-risk-manager"></canvas></div></div>
-                </div>
-                <div class="space-y-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-xl flex justify-between items-center gap-4 border border-white/10">
-                        <h2 class="text-xl font-black text-slate-800 uppercase italic">Análise Individual</h2>
-                        <div class="flex gap-2"><input type="text" id="view-search" oninput="filterList()" placeholder="Buscar..." class="px-4 py-2 bg-slate-100 rounded-lg outline-none text-sm w-64 shadow-inner"><select id="view-filter" onchange="filterList()" class="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold shadow-sm"><option value="all">Todos</option><option value="baixo">Baixo</option><option value="medio">Médio</option><option value="alto">Alto</option><option value="critico">Crítico</option></select></div>
-                    </div>
-                    <div id="view-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-20"></div>
-                </div>
+            const dia = fullData.diagnostico;
+            const dC = { b: dia.filter(u=>u.rid==='baixo').length, m: dia.filter(u=>u.rid==='medio').length, a: dia.filter(u=>u.rid==='alto').length, c: dia.filter(u=>u.rid==='critico').length };
+            document.getElementById('kpi-zone').innerHTML = `
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-emerald-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Risco Baixo</p><h3 class="text-3xl font-black mt-1 text-emerald-600">${dC.b}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-blue-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Risco Médio</p><h3 class="text-3xl font-black mt-1 text-blue-600">${dC.m}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-amber-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Risco Alto</p><h3 class="text-3xl font-black mt-1 text-amber-500">${dC.a}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-red-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Risco Crítico</p><h3 class="text-3xl font-black mt-1 text-red-600">${dC.c}</h3></div>
             `;
-            const d = fullData.diagnostico;
-            const c = { b:d.filter(u=>u.rid==='baixo').length, m:d.filter(u=>u.rid==='medio').length, a:d.filter(u=>u.rid==='alto').length, cr:d.filter(u=>u.rid==='critico').length };
-            const dough = new Chart(document.getElementById('chart-risk-doughnut'), { type: 'doughnut', data: { labels: ['Baixo', 'Médio', 'Alto', 'Crítico'], datasets: [{ data: [c.b, c.m, c.a, c.cr], backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } } });
-            const gps = ["Andres", "Sara", "Gustavo", "Dayane"];
-            const manager = new Chart(document.getElementById('chart-risk-manager'), { type: 'bar', data: { labels: gps, datasets: [ { label: 'Baixo', data: gps.map(g => d.filter(u => u.gp === g && u.rid === 'baixo').length), backgroundColor: '#10B981' }, { label: 'Médio', data: gps.map(g => d.filter(u => u.gp === g && u.rid === 'medio').length), backgroundColor: '#3B82F6' }, { label: 'Alto', data: gps.map(g => d.filter(u => u.gp === g && u.rid === 'alto').length), backgroundColor: '#F59E0B' }, { label: 'Crítico', data: gps.map(g => d.filter(u => u.gp === g && u.rid === 'critico').length), backgroundColor: '#EF4444' } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } } });
-            charts.push(dough, manager);
-            renderMethodology('diagnostico');
+            document.getElementById('view-container').innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8"><div class="bg-white p-10 rounded-3xl card-shadow"><h2 class="text-xl font-black text-slate-800 uppercase italic mb-6">Matriz de Distribuição</h2><div class="h-[300px]"><canvas id="chart-risk-doughnut"></canvas></div></div><div class="bg-white p-10 rounded-3xl card-shadow"><h2 class="text-xl font-black text-slate-800 uppercase italic mb-6">Exposição por GP</h2><div class="h-[300px]"><canvas id="chart-risk-manager"></canvas></div></div></div><div class="space-y-6"><div class="bg-white p-6 rounded-2xl shadow-xl flex justify-between items-center gap-4 border border-white/10"><h2 class="text-xl font-black text-slate-800 uppercase italic">Análise Individual</h2><div class="flex gap-2"><input type="text" id="view-search" oninput="filterList()" placeholder="Buscar..." class="px-4 py-2 bg-slate-100 rounded-lg outline-none text-sm w-64 shadow-inner"><select id="view-filter" onchange="filterList()" class="px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold shadow-sm"><option value="all">Todos</option><option value="baixo">Baixo</option><option value="medio">Médio</option><option value="alto">Alto</option><option value="critico">Crítico</option></select></div></div><div id="view-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-20"></div></div>`;
+            charts.push(new Chart(document.getElementById('chart-risk-doughnut'), { type: 'doughnut', data: { labels: ['Baixo', 'Médio', 'Alto', 'Crítico'], datasets: [{ data: [dC.b, dC.m, dC.a, dC.c], backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } } }));
+            charts.push(new Chart(document.getElementById('chart-risk-manager'), { type: 'bar', data: { labels: ["Andres", "Sara", "Gustavo", "Dayane"], datasets: [ { label: 'Baixo', data: ["Andres", "Sara", "Gustavo", "Dayane"].map(g => dia.filter(u => u.gp === g && u.rid === 'baixo').length), backgroundColor: '#10B981' }, { label: 'Médio', data: ["Andres", "Sara", "Gustavo", "Dayane"].map(g => dia.filter(u => u.gp === g && u.rid === 'medio').length), backgroundColor: '#3B82F6' }, { label: 'Alto', data: ["Andres", "Sara", "Gustavo", "Dayane"].map(g => dia.filter(u => u.gp === g && u.rid === 'alto').length), backgroundColor: '#F59E0B' }, { label: 'Crítico', data: ["Andres", "Sara", "Gustavo", "Dayane"].map(g => dia.filter(u => u.gp === g && u.rid === 'critico').length), backgroundColor: '#EF4444' } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } } }));
             filterList();
         }
 
-        function renderStandardKPIs(type) {
-            const data = fullData[type];
-            const cnt = { b:0, m:0, a:0, cr:0 };
-            data.forEach(u => {
-                if(type === 'semaforo') { if(u.rid==='healthy') cnt.b++; else if(u.rid==='satisfatory') cnt.m++; else if(u.rid==='warning') cnt.a++; else cnt.cr++; }
-                else { if(u.rid==='baixo') cnt.b++; else if(u.rid==='medio') cnt.m++; else if(u.rid==='alto') cnt.a++; else cnt.cr++; }
-            });
-            const cols = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'];
-            const labs = type === 'semaforo' ? ['Saudáveis', 'Estáveis', 'Alerta', 'Críticas'] : ['Risco Baixo', 'Risco Médio', 'Risco Alto', 'Risco Crítico'];
-            document.getElementById('standard-kpi-block').innerHTML = labs.map((l, i) => `<div class="bg-white p-6 rounded-2xl border-l-8 shadow-lg transition-all hover:scale-105" style="border-left-color: ${cols[i]}"><p class="text-slate-400 text-[9px] font-bold uppercase tracking-widest">${l}</p><h3 class="text-3xl font-black mt-1" style="color: ${cols[i]}">${Object.values(cnt)[i]}</h3></div>`).join('');
+        function renderEventos() {
+            const data = fullData.eventos;
+            const act = data.filter(e => !e.status.toLowerCase().includes('realizado'));
+            const open = data.filter(e => e.status.toLowerCase().includes('aberta'));
+            const tInsc = act.reduce((a,b)=>a+b.registered, 0);
+            const tVag = act.reduce((a,b)=>a+b.capacity, 0);
+
+            document.getElementById('kpi-zone').innerHTML = `
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-blue-800 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Eventos Ativos</p><h3 class="text-3xl font-black mt-1 text-blue-800">${act.length}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-emerald-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Inscrições Abertas</p><h3 class="text-3xl font-black mt-1 text-emerald-600">${open.length}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-red-600 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Inscritos (Ativos)</p><h3 class="text-3xl font-black mt-1 text-red-600">${tInsc}</h3></div>
+                <div class="bg-white p-6 rounded-2xl border-l-8 border-orange-500 shadow-lg"><p class="text-slate-400 text-[9px] uppercase font-bold">Vagas (Ativos)</p><h3 class="text-3xl font-black mt-1 text-orange-600">${tVag}</h3></div>
+            `;
+
+            document.getElementById('view-container').innerHTML = `
+                <div class="bg-white p-10 rounded-3xl card-shadow w-full">
+                    <h3 class="text-slate-800 text-[11px] font-black uppercase tracking-[0.3em] mb-8">RESULTADOS DOS EVENTOS ATIVOS</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">${open.map(e => {
+                        const rate = Math.min(100, parseFloat(e.fill_rate));
+                        let col = '#EF4444'; if (rate >= 100) col = '#3B82F6'; else if (rate >= 80) col = '#10B981'; else if (rate >= 51) col = '#F59E0B';
+                        return `<div class="space-y-2"><div class="flex justify-between"><div><h4 class="font-bold text-[11px] uppercase">${e.name}</h4><p class="text-[9px] text-slate-400 uppercase">${e.location}</p></div><span class="text-[11px] font-black">${e.registered} / ${e.capacity}</span></div><div class="progress-container shadow-inner"><div class="progress-fill" style="width:${rate}%; background-color:${col}"></div></div></div>`;
+                    }).join('')}</div>
+                    <div class="mt-8 pt-4 border-t text-right"><p class="text-[10px] font-black text-slate-400 uppercase">Total Ativo: ${tInsc} inscritos</p></div>
+                </div>
+                <div class="bg-white p-10 rounded-3xl card-shadow h-[450px] flex flex-col"><h2 class="text-xl font-black italic uppercase mb-8">Tendência Ativa (0-100%)</h2><div class="flex-grow relative"><canvas id="chart-event-line"></canvas></div></div>
+            `;
+            charts.push(new Chart(document.getElementById('chart-event-line'), { type: 'line', data: { labels: act.slice(0, 15).map(e => e.name), datasets: [{ label: '% Ocupação', data: act.slice(0, 15).map(e => Math.min(100, e.fill_rate)), borderColor: '#1D428A', backgroundColor: '#1D428A10', tension: 0.4, fill: true, pointRadius: 6, pointBackgroundColor: '#C9082A', pointBorderColor: '#FFF', pointBorderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 40, right: 30, left: 10, bottom: 20 } }, scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } }, plugins: { legend: { display: false } } } }));
         }
 
         function renderMethodology(view) {
-            const box = document.getElementById('methodology-section');
-            box.classList.remove('hidden');
-            if (view === 'home') {
-                box.innerHTML = `<div class="methodology-box p-10 rounded-3xl text-white/80 space-y-6 mb-10 card-shadow border border-white/10"><h2 class="text-white text-xl font-black uppercase italic border-l-4 border-red-600 pl-4">Metodologias de Inteligência Integrada</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs leading-relaxed"><div><h4 class="text-white font-bold uppercase mb-2">Saúde 360° da Rede</h4><p>Métrica que funde a Performance Técnica (Semáforo) com a Estabilidade Relacional (Diagnóstico). O Radar de Gestores identifica o balanceamento entre a entrega técnica operacional e o engajamento comercial/financeiro.</p></div><div><h4 class="text-white font-bold uppercase mb-2">Matriz de Prioridade</h4><p>Cruzamento automático que identifica unidades em risco: baixa nota operacional e alto risco de cancelamento. Unidades com Score Qualitativo > 8.0 são sinalizadas para intervenção imediata.</p></div></div></div>`;
-            } else {
-                box.innerHTML = `<div class="methodology-box p-10 rounded-3xl text-white/80 space-y-6 mb-10 card-shadow border border-white/10"><h2 class="text-white text-xl font-black uppercase italic border-l-4 border-red-600 pl-4 leading-tight">Metodologia de Risco (Diagnóstico Isolado)</h2><div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-xs"><div class="bg-red-900/20 p-4 rounded-xl border border-red-500/30 text-center"><h4 class="text-red-400 font-bold uppercase text-[10px] tracking-widest">🚨 Inadimplência</h4><p>Pendência financeira ou intenção de cancelamento gera <strong>Score 10.0 automático</strong>.</p></div><div class="space-y-3"><h4 class="text-white font-bold uppercase text-[10px] tracking-widest border-b border-white/10 pb-1">1. Fricção Passiva</h4><p>Interpreta Silêncio Administrativo e lentidão nos retornos de gestão.</p></div><div class="space-y-3"><h4 class="text-white font-bold uppercase text-[10px] tracking-widest border-b border-white/10 pb-1">2. Zero Compensação</h4><p>Elogios não reduzem o score. A métrica é 100% focada em exposição negativa acumulada.</p></div><div class="space-y-3"><h4 class="text-white font-bold uppercase text-[10px] tracking-widest border-b border-white/10 pb-1">3. Réguas</h4><ul class="space-y-1"><li><span class="text-red-500 font-bold">8-10:</span> Crítico</li><li><span class="text-amber-500 font-bold">6-7:</span> Alto</li><li><span class="text-blue-400 font-bold">3-5:</span> Médio</li><li><span class="text-emerald-500 font-bold">0-2:</span> Baixo</li></ul></div></div></div>`;
-            }
+            const box = document.getElementById('methodology-section'); box.classList.remove('hidden');
+            if (view === 'home') box.innerHTML = `<div class="methodology-box p-10 rounded-3xl text-white/80 space-y-6 mb-10 card-shadow border border-white/10"><h2 class="text-white text-xl font-black uppercase italic border-l-4 border-red-600 pl-4 leading-tight">Metodologias Integradas</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs leading-relaxed"><div><h4 class="text-white font-bold uppercase mb-2">Saúde 360° da Rede</h4><p>Correlação entre performance técnica e engajamento comercial.</p></div><div><h4 class="text-white font-bold uppercase mb-2">Matriz de Prioridade</h4><p>Unidades com inadimplência ou fricção severa (> 8.0) são sinalizadas automaticamente para ação prioritária.</p></div></div></div>`;
+            else box.innerHTML = `<div class="methodology-box p-10 rounded-3xl text-white/80 space-y-6 mb-10 card-shadow border border-white/10"><h2 class="text-white text-xl font-black uppercase italic border-l-4 border-red-600 pl-4 leading-tight text-white">Metodologia de Risco Isolado</h2><div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-xs"><div class="bg-red-900/20 p-4 rounded-xl border border-red-500/30 text-center"><h4 class="text-red-400 font-bold uppercase text-[10px] tracking-widest text-center italic font-bold">🚨 INADIMPLÊNCIA</h4><p>Qualquer sinal de pendência financeira força automaticamente o status <strong>CRÍTICO (Score 10.0)</strong>.</p></div></div></div>`;
         }
 
         function filterList() {
             const search = document.getElementById('view-search').value.toLowerCase();
-            const filter = document.getElementById('view-filter').value;
+            const filter = document.getElementById('view-filter') ? document.getElementById('view-filter').value : 'all';
             const grid = document.getElementById('view-grid');
+            if(!grid) return;
             const data = fullData[currentView];
             grid.innerHTML = data.filter(u => {
-                const ms = u.name.toLowerCase().includes(search) || (u.gp && u.gp.toLowerCase().includes(search));
-                if (filter === 'all') return ms;
-                if (currentView === 'semaforo') return u.rid === filter && ms;
-                if (filter === 'baixo') return u.risk_score <= 2.9 && ms;
-                if (filter === 'medio') return u.risk_score >= 3 && u.risk_score <= 5.9 && ms;
-                if (filter === 'alto') return u.risk_score >= 6 && u.risk_score <= 7.9 && ms;
-                if (filter === 'critico') return u.risk_score >= 8 && ms;
-                return ms;
+                const match = u.name.toLowerCase().includes(search) || (u.gp && u.gp.toLowerCase().includes(search)) || (u.location && u.location.toLowerCase().includes(search));
+                if (filter === 'all') return match;
+                if (currentView === 'semaforo') return u.rid === filter && match;
+                if (currentView === 'diagnostico') { if (filter === 'baixo') return u.risk_score <= 2.9 && match; if (filter === 'medio') return u.risk_score >= 3 && u.risk_score <= 5.9 && match; if (filter === 'alto') return u.risk_score >= 6 && u.risk_score <= 7.9 && match; if (filter === 'critico') return u.risk_score >= 8 && match; }
+                return match;
             }).map(u => {
                 const color = u.color || (u.rid === 'healthy' ? '#10B981' : u.rid === 'satisfatory' ? '#3B82F6' : u.rid === 'warning' ? '#F59E0B' : '#EF4444');
                 const idx = data.indexOf(u);
-                if(currentView === 'semaforo') {
-                    return `<div onclick="openModal(${idx})" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-md cursor-pointer hover:scale-[1.02] transition-all border-b-4" style="border-bottom-color: ${color}"><div class="flex justify-between items-start mb-4"><h4 class="font-bold text-[10px] uppercase text-slate-900 leading-tight">${u.name}</h4><span class="text-[7px] px-2 py-1 rounded font-black uppercase text-white shadow-sm" style="background-color: ${color}">${u.rid}</span></div><p class="text-[9px] text-slate-400 font-bold uppercase">GP: ${u.gp}</p><div class="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Score Final</span><span class="text-sm font-black text-slate-700">${u.score.toFixed(2)}</span></div></div>`;
-                } else {
-                    return `<div onclick="openModal(${idx})" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-md cursor-pointer hover:scale-[1.02] transition-all border-l-4" style="border-left-color: ${color}"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-[11px] uppercase text-slate-900 leading-tight">${u.name}</h4><div class="flex flex-col items-end"><span class="text-[10px] font-black text-slate-900">${u.risk_score.toFixed(1)}/10</span><span class="text-[6px] px-1 py-0.5 rounded font-black uppercase text-white shadow-sm" style="background-color: ${color}">${u.rlabel}</span></div></div><p class="text-[9px] text-slate-400 font-bold italic mb-4 uppercase tracking-tighter">Gestor: ${u.gp}</p><div class="pt-4 border-t border-slate-50 flex justify-between items-center"><span class="text-[8px] text-slate-400 font-bold uppercase tracking-widest italic font-bold text-blue-600">Ver Ficha</span><div class="bg-blue-600 text-white p-1.5 rounded-lg shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div></div></div>`;
-                }
+                return `<div onclick="openModal(${idx})" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-md cursor-pointer hover:scale-[1.02] transition-all border-l-4" style="border-left-color: ${color}"><div class="flex justify-between items-start mb-2"><h4 class="font-bold text-[11px] uppercase text-slate-900 leading-tight">${u.name}</h4><div class="flex flex-col items-end"><span class="text-[10px] font-black text-slate-900">${currentView==='semaforo'?u.score.toFixed(2):u.risk_score.toFixed(1)}</span><span class="text-[6px] px-1 py-0.5 rounded font-black uppercase text-white shadow-sm" style="background-color: ${color}">${u.rid||u.rlabel}</span></div></div><p class="text-[9px] text-slate-400 font-bold italic mb-4 uppercase tracking-tighter">GP: ${u.gp}</p><div class="pt-4 border-t border-slate-50 flex justify-between items-center"><span class="text-[8px] text-slate-400 font-bold uppercase tracking-widest italic font-bold text-blue-600">Ver Ficha</span><div class="bg-blue-600 text-white p-1.5 rounded-lg shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div></div></div>`;
             }).join('');
         }
 
         window.openModal = function(idx) {
-            const u = fullData[currentView][idx];
-            if (!u) return;
-            const list = document.getElementById('modal-criteria-list');
+            const u = fullData[currentView][idx]; if (!u) return;
             document.getElementById('modal-unit-name').innerText = u.name;
-            document.getElementById('modal-unit-gp').innerText = "Responsável: " + u.gp;
-            const banner = document.getElementById('modal-risk-banner');
-            const tag = document.getElementById('modal-risk-tag');
+            document.getElementById('modal-unit-gp').innerText = "Responsável: " + (u.gp || "N/A");
             const footer = document.getElementById('modal-footer-score');
-
+            const list = document.getElementById('modal-criteria-list');
             if(currentView === 'semaforo') {
-                banner.classList.add('hidden'); footer.style.display = 'flex';
-                document.getElementById('modal-score-label').innerText = 'Score Médio Operacional';
-                document.getElementById('modal-total-score').innerText = u.score.toFixed(2) + " / 3.0";
+                footer.style.display = 'flex'; document.getElementById('modal-score-label').innerText = 'Score Médio Operacional'; document.getElementById('modal-total-score').innerText = u.score.toFixed(2);
                 list.innerHTML = u.details.map(d => `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100 shadow-sm"><span class="text-[10px] font-bold text-slate-500 uppercase">${d.label}</span><span class="text-xs font-black ${d.score >= 2.8 ? 'text-emerald-600' : d.score >= 2.3 ? 'text-blue-600' : 'text-red-600'}">${d.score.toFixed(1)}</span></div>`).join('');
-            } else {
-                banner.classList.remove('hidden'); banner.style.backgroundColor = u.color + '20'; 
-                tag.innerText = u.rlabel + " (" + u.risk_score.toFixed(1) + ")"; tag.style.backgroundColor = u.color;
-                footer.style.display = 'flex';
-                document.getElementById('modal-score-label').innerText = 'Exposição Negativa Acumulada';
-                document.getElementById('modal-total-score').innerText = u.risk_score.toFixed(1) + " / 10.0";
+            } else if (currentView === 'diagnostico') {
+                footer.style.display = 'flex'; document.getElementById('modal-score-label').innerText = 'Exposição Negativa'; document.getElementById('modal-total-score').innerText = u.risk_score.toFixed(1);
                 list.classList.remove('md:grid-cols-2'); list.classList.add('grid-cols-1');
-                list.innerHTML = u.details.map(d => `<div class="bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm mb-2"><p class="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">${d.label}</p><p class="text-xs text-slate-700 font-medium leading-relaxed">${d.text || 'Conformidade plena verificada.'}</p></div>`).join('');
+                list.innerHTML = u.details.map(d => `<div class="bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm mb-2"><p class="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">${d.label}</p><p class="text-xs text-slate-700 font-medium leading-relaxed">${d.text || 'Nenhum registro.'}</p></div>`).join('');
             }
-            document.getElementById('modal-overlay').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+            document.getElementById('modal-overlay').style.display = 'flex'; document.body.style.overflow = 'hidden';
         }
 
         window.closeModal = function() {
-            document.getElementById('modal-overlay').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            document.getElementById('modal-criteria-list').classList.add('md:grid-cols-2');
-            document.getElementById('modal-criteria-list').classList.remove('grid-cols-1');
+            document.getElementById('modal-overlay').style.display = 'none'; document.body.style.overflow = 'auto';
+            document.getElementById('modal-criteria-list').classList.add('md:grid-cols-2'); document.getElementById('modal-criteria-list').classList.remove('grid-cols-1');
         }
     </script>
 </body>
