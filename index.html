@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NBA Basketball School — Command Center</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,700;1,800;1,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {
   --blue:#1D428A; --red:#C9082A; --bg:#080f1e; --surface:#0d1829;
   --panel:#111d33; --border:rgba(255,255,255,0.08); --text:#e8edf5;
   --muted:rgba(232,237,245,0.4); --green:#10B981; --amber:#F59E0B;
-  --sky:#3B82F6; --font-head:'Barlow Condensed',sans-serif;
+  --sky:#3B82F6; --font-head:'DM Sans',sans-serif;
   --font-body:'DM Sans',sans-serif; --sw:260px; --sw-c:72px; --hh:68px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -143,7 +143,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);-webkit
 .ev-row{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-bottom:1px solid var(--border)}
 .ev-row:last-child{border-bottom:none}
 .ev-head{display:flex;justify-content:space-between;align-items:baseline}
-.ev-name{font-family:var(--font-head);font-size:13px;font-weight:700;font-style:italic;text-transform:uppercase}
+.ev-name{font-family:var(--font-body);font-size:13px;font-weight:700;font-style:normal;text-transform:none}
 .ev-count{font-family:var(--font-head);font-size:13px;font-weight:800}
 .ev-loc{font-size:10px;color:var(--muted)}
 
@@ -255,6 +255,184 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);-webkit
   .tb-stat{display:none}
   .tb-logo{height:20px;max-width:130px}
 }
+
+/* ══════════════════════════════════════
+   TV / LARGE SCREEN (≥1600px)
+   Otimizado para apresentação contínua
+══════════════════════════════════════ */
+@media(min-width:1600px){
+  :root{
+    --sw:300px;
+    --hh:80px;
+  }
+
+  /* Topbar */
+  .topbar{padding:0 36px;gap:24px}
+  .tb-logo{height:38px}
+  .tb-sub{font-size:12px;letter-spacing:.15em}
+  .tb-pill{padding:7px 16px;font-size:12px}
+  .tb-stat{padding:10px 24px}
+  .tb-stat-lbl{font-size:11px}
+  .tb-stat-val{font-size:26px}
+
+  /* Sidebar */
+  .sb-head{padding:24px 20px;min-height:90px}
+  .sb-logo{width:170px}
+  .nc{font-size:10px;padding:14px 24px 5px}
+  .ni{font-size:14px;padding:13px 24px;gap:14px}
+  .ni-dot{width:10px;height:10px}
+  .sb-foot{font-size:10px;padding:18px 20px}
+
+  /* Content */
+  .content{padding:32px;gap:28px}
+
+  /* KPIs */
+  .kpis{gap:20px}
+  .kpi{padding:24px 28px;border-radius:18px}
+  .kpi-lbl{font-size:11px;letter-spacing:.2em}
+  .kpi-val{font-size:52px}
+
+  /* Panels */
+  .panel{padding:32px;border-radius:18px}
+  .pt{font-size:22px;margin-bottom:22px}
+  .pt-sm{font-size:12px;letter-spacing:.22em;margin-bottom:18px}
+
+  /* NBS metrics */
+  .nmg{gap:16px;margin-bottom:20px}
+  .nm{padding:18px;border-radius:14px}
+  .nm-lbl{font-size:10px;letter-spacing:.2em;margin-bottom:8px}
+  .nm-val{font-size:38px}
+
+  /* Eventos */
+  .ev-row{padding:14px 0}
+  .ev-name{font-size:15px}
+  .ev-count{font-size:16px}
+  .ev-loc{font-size:12px}
+  .prog-wrap{height:8px;margin-top:8px!important}
+
+  /* Unit cards */
+  .ugrid{grid-template-columns:repeat(3,1fr);gap:18px}
+  .ucard{padding:22px;border-radius:16px}
+  .ucard-name{font-size:15px}
+  .ucard-score{font-size:28px}
+  .ucard-badge{font-size:10px;padding:3px 10px}
+  .ucard-gp{font-size:12px}
+  .ucard-cta{font-size:10px}
+
+  /* Toolbar */
+  .toolbar{padding:18px 24px}
+  .tb-title{font-size:22px}
+  .si{font-size:14px;padding:11px 16px;width:260px}
+  .sf{font-size:14px;padding:11px 16px}
+
+  /* Criteria chips */
+  .cc{padding:14px 16px;border-radius:10px}
+  .cc-lbl{font-size:11px}
+  .cc-val{font-size:22px}
+
+  /* Charts */
+  .ch-wrap{height:340px!important}
+
+  /* Modal */
+  .modal{max-width:760px}
+  .modal-title{font-size:28px}
+  .modal-sub{font-size:12px}
+  .mcell-lbl{font-size:10px}
+  .mcell-txt{font-size:15px}
+  .ms-val{font-size:42px}
+
+  /* Two col — keep side by side on TV */
+  .two{grid-template-columns:1fr 1fr}
+  .nbs-split{grid-template-columns:1fr 1fr}
+}
+
+/* ── 4K (≥3200px) ── */
+@media(min-width:3200px){
+  :root{--sw:380px;--hh:100px}
+  .tb-logo{height:52px}
+  .sb-logo{width:220px}
+  .kpi-val{font-size:72px}
+  .nm-val{font-size:54px}
+  .nm-lbl{font-size:13px}
+  .pt{font-size:30px}
+  .pt-sm{font-size:14px}
+  .content{padding:48px;gap:40px}
+  .ev-name{font-size:20px}
+  .ev-loc{font-size:14px}
+  .prog-wrap{height:10px}
+  .ucard-name{font-size:18px}
+  .ucard-score{font-size:36px}
+  .ch-wrap{height:460px!important}
+  .ni{font-size:18px;padding:16px 28px}
+  .nc{font-size:12px}
+}
+
+/* ── TV/PC TOGGLE ── */
+.view-toggle {
+  display:flex; align-items:center; gap:0;
+  background:rgba(255,255,255,0.06); border:1px solid var(--border);
+  border-radius:10px; overflow:hidden; flex-shrink:0;
+}
+.vt-btn {
+  padding:8px 14px; font-family:var(--font-body); font-size:11px;
+  font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--muted); background:transparent; border:none; cursor:pointer;
+  transition:all .2s; display:flex; align-items:center; gap:6px;
+}
+.vt-btn.active { background:var(--red); color:white; }
+.vt-btn:hover:not(.active) { color:var(--text); background:rgba(255,255,255,0.06); }
+
+/* TV MODE — applied to <body> as class "tv-mode" */
+body.tv-mode { font-size: 18px; }
+body.tv-mode :root,
+body.tv-mode { --sw:320px; --hh:88px; }
+body.tv-mode .tb-logo { height:42px; max-width:220px; }
+body.tv-mode .tb-sub { font-size:13px; }
+body.tv-mode .tb-stat-val { font-size:28px; }
+body.tv-mode .tb-stat-lbl { font-size:11px; }
+body.tv-mode .tb-pill { font-size:12px; padding:7px 16px; }
+body.tv-mode .sb-logo { width:190px; }
+body.tv-mode .nc { font-size:11px; padding:14px 24px 5px; }
+body.tv-mode .ni { font-size:15px; padding:14px 24px; gap:14px; }
+body.tv-mode .ni-dot { width:10px; height:10px; }
+body.tv-mode .content { padding:32px; gap:28px; }
+body.tv-mode .kpi-lbl { font-size:11px; }
+body.tv-mode .kpi-val { font-size:56px; }
+body.tv-mode .kpi { padding:24px 28px; }
+body.tv-mode .panel { padding:28px; }
+body.tv-mode .pt { font-size:24px; margin-bottom:22px; }
+body.tv-mode .pt-sm { font-size:13px; letter-spacing:.22em; margin-bottom:18px; }
+body.tv-mode .nm { padding:20px; }
+body.tv-mode .nm-lbl { font-size:11px; margin-bottom:8px; }
+body.tv-mode .nm-val { font-size:44px; }
+body.tv-mode .ev-row { padding:14px 0; }
+body.tv-mode .ev-name { font-size:16px; }
+body.tv-mode .ev-count { font-size:16px; }
+body.tv-mode .ev-loc { font-size:13px; }
+body.tv-mode .prog-wrap { height:8px; margin-top:8px !important; }
+body.tv-mode .ugrid { grid-template-columns:repeat(3,1fr); gap:20px; }
+body.tv-mode .ucard { padding:22px; }
+body.tv-mode .ucard-name { font-size:16px; }
+body.tv-mode .ucard-score { font-size:30px; }
+body.tv-mode .ucard-badge { font-size:11px; padding:3px 10px; }
+body.tv-mode .ucard-gp { font-size:13px; }
+body.tv-mode .ucard-cta { font-size:11px; }
+body.tv-mode .toolbar { padding:18px 24px; }
+body.tv-mode .tb-title { font-size:24px; }
+body.tv-mode .si { font-size:15px; padding:11px 16px; width:260px; }
+body.tv-mode .sf { font-size:15px; padding:11px 16px; }
+body.tv-mode .cc { padding:14px 16px; }
+body.tv-mode .cc-lbl { font-size:11px; }
+body.tv-mode .cc-val { font-size:24px; }
+body.tv-mode .ch-wrap { height:360px !important; }
+body.tv-mode .churn-name { font-size:16px; }
+body.tv-mode .churn-score { font-size:12px; }
+body.tv-mode .two { grid-template-columns:1fr 1fr; }
+body.tv-mode .nbs-split { grid-template-columns:1fr 1fr; }
+body.tv-mode .mbox { padding:28px; }
+body.tv-mode .mbox-t { font-size:20px; }
+body.tv-mode .mi h4 { font-size:13px; }
+body.tv-mode .mi p { font-size:14px; }
 </style>
 </head>
 <body>
@@ -338,6 +516,16 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);-webkit
           <div class="tb-dot"></div><span>Live</span>
         </div>
         <div id="sync-badge" style="opacity:0;transition:opacity .5s;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);border-radius:99px;padding:4px 11px;font-size:10px;font-weight:600;color:#10B981;flex-shrink:0">✓ Atualizado</div>
+        <div class="view-toggle" id="view-toggle">
+          <button class="vt-btn active" id="btn-pc" onclick="setViewMode('pc')" title="Modo PC">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            PC
+          </button>
+          <button class="vt-btn" id="btn-tv" onclick="setViewMode('tv')" title="Modo TV">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 20h8"/><path d="M12 18v2"/><path d="M9 2l3 2 3-2"/></svg>
+            TV
+          </button>
+        </div>
         <div class="tb-stat">
           <span class="tb-stat-lbl" id="stat-lbl">Unidades</span>
           <span class="tb-stat-val" id="stat-val">—</span>
@@ -355,7 +543,7 @@ const CFG = {
   SHEETS: {
     semaforo:    'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDFJ9sP_Kp-iAAgRQBUbJm1fzPVdFPiPgvMCc_iJL2VzJptbIfKg66_stnvNWJv2AgA5WAm8uPMD3Y/pub?gid=0&single=true&output=csv',
     diagnostico: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpX89EAAfl3U9zbcSzJGZa_KAB5nYfMqHHLE1r6OJOCp5-9SwpxpvxsOnjLAm7Ijj29MXQbt5vMF4o/pub?output=csv',
-    eventos:     'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvITKm2kGIIFfZoz9jk_My5uGW6ncZu2vQCFIk2bp6h4wg0Fu5JhavKDMJDR0h6CowoYY1Wt_uHQms/pub?gid=0&single=true&output=csv',
+    eventos:     'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvITKm2kGIIFfZoz9jk_My5uGW6ncZu2vQCFIk2bp6h4wg0Fu5JhavKDMJDR0h6CowoYY1Wt_uHQms/pub?output=csv',
   },
   POLL_MS: 60000,
   GPS: ['Andres','Sara','Gustavo','Dayane'],
@@ -379,6 +567,10 @@ let S = { view:'nbs', data:{ semaforo:[], diagnostico:[], eventos:[] }, charts:[
 
 /* ═══════════════ DOM READY ═══════════════ */
 document.addEventListener('DOMContentLoaded', function() {
+  // Restore TV/PC mode preference
+  var savedMode = localStorage.getItem('viewMode');
+  if (savedMode === 'tv') setViewMode('tv');
+
   // Login
   document.getElementById('pass-field').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') login();
@@ -568,6 +760,20 @@ async function syncSheets(firstRun) {
   }
 }
 
+function setViewMode(mode) {
+  if (mode === 'tv') {
+    document.body.classList.add('tv-mode');
+    document.getElementById('btn-tv').classList.add('active');
+    document.getElementById('btn-pc').classList.remove('active');
+    localStorage.setItem('viewMode', 'tv');
+  } else {
+    document.body.classList.remove('tv-mode');
+    document.getElementById('btn-pc').classList.add('active');
+    document.getElementById('btn-tv').classList.remove('active');
+    localStorage.setItem('viewMode', 'pc');
+  }
+}
+
 function showSyncBadge() {
   var badge = document.getElementById('sync-badge');
   if (!badge) return;
@@ -632,58 +838,38 @@ function renderNBS() {
   var sem = S.data.semaforo, dia = S.data.diagnostico, ev = S.data.eventos;
   var open = ev.filter(function(e) { return !e.status.toLowerCase().includes('realizado') && !e.status.toLowerCase().includes('futuro'); });
   var sC = { h:sem.filter(function(u){return u.rid==='healthy'}).length, s:sem.filter(function(u){return u.rid==='satisfatory'}).length, w:sem.filter(function(u){return u.rid==='warning'}).length, c:sem.filter(function(u){return u.rid==='critical'}).length };
-  var dC = { b:dia.filter(function(u){return u.rid==='baixo'}).length, m:dia.filter(function(u){return u.rid==='medio'}).length, a:dia.filter(function(u){return u.rid==='alto'}).length, c:dia.filter(function(u){return u.rid==='critico'}).length };
+  var dC = { b:dia.filter(function(u){return u.rid==='baixo'}).length, m:dia.filter(function(u){return u.rid==='medio'}).length, c:dia.filter(function(u){return u.rid==='critico'}).length };
   setHeader('Central NBS','Painel completo da rede — Semáforo + Diagnóstico + Eventos','Unidades',sem.length+dia.length);
   setContent(
-    '<div class="nbs-split">' +
-      '<div class="panel">' +
-        '<div class="pt-sm">Atendimento — Semáforo</div>' +
-        '<div class="nmg">' +
-          '<div class="nm" style="--mc:#10B981"><div class="nm-lbl">Saudáveis</div><div class="nm-val">' + sC.h + '</div></div>' +
-          '<div class="nm" style="--mc:#3B82F6"><div class="nm-lbl">Estáveis</div><div class="nm-val">' + sC.s + '</div></div>' +
-          '<div class="nm" style="--mc:#F59E0B"><div class="nm-lbl">Alerta</div><div class="nm-val">' + sC.w + '</div></div>' +
-          '<div class="nm" style="--mc:#EF4444"><div class="nm-lbl">Críticas</div><div class="nm-val">' + sC.c + '</div></div>' +
-        '</div>' +
-        '<div class="pt-sm" style="margin-top:14px">Diagnóstico de Risco</div>' +
-        '<div class="nmg">' +
-          '<div class="nm" style="--mc:#10B981"><div class="nm-lbl">Baixo</div><div class="nm-val">' + dC.b + '</div></div>' +
-          '<div class="nm" style="--mc:#3B82F6"><div class="nm-lbl">Médio</div><div class="nm-val">' + dC.m + '</div></div>' +
-          '<div class="nm" style="--mc:#EF4444"><div class="nm-lbl">Crítico</div><div class="nm-val">' + dC.c + '</div></div>' +
-        '</div>' +
+    '<div class="panel">' +
+      '<div class="pt-sm">Atendimento — Semáforo</div>' +
+      '<div class="nmg">' +
+        '<div class="nm" style="--mc:#10B981"><div class="nm-lbl">Saudáveis</div><div class="nm-val">' + sC.h + '</div></div>' +
+        '<div class="nm" style="--mc:#3B82F6"><div class="nm-lbl">Estáveis</div><div class="nm-val">' + sC.s + '</div></div>' +
+        '<div class="nm" style="--mc:#F59E0B"><div class="nm-lbl">Alerta</div><div class="nm-val">' + sC.w + '</div></div>' +
+        '<div class="nm" style="--mc:#EF4444"><div class="nm-lbl">Críticas</div><div class="nm-val">' + sC.c + '</div></div>' +
       '</div>' +
-      '<div class="panel">' +
-        '<div class="pt-sm">Eventos — Inscrições Abertas</div>' +
-        '<div style="overflow-y:auto;max-height:300px">' +
-          open.slice(0,12).map(function(e) {
-            var rate = Math.min(100, e.fill_rate);
-            var col = rate>=100?'#3B82F6':rate>=80?'#10B981':rate>=51?'#F59E0B':'#EF4444';
-            return '<div class="ev-row"><div class="ev-head"><span class="ev-name">'+e.name+'</span><span class="ev-count" style="color:'+col+'">'+e.registered+'/'+e.capacity+'</span></div><div class="ev-loc">'+e.location+'</div><div class="prog-wrap" style="margin-top:5px"><div class="prog-fill" style="width:'+rate+'%;background:'+col+'"></div></div></div>';
-          }).join('') +
-        '</div>' +
+      '<div class="pt-sm" style="margin-top:18px">Diagnóstico de Risco</div>' +
+      '<div class="nmg">' +
+        '<div class="nm" style="--mc:#10B981"><div class="nm-lbl">Baixo</div><div class="nm-val">' + dC.b + '</div></div>' +
+        '<div class="nm" style="--mc:#3B82F6"><div class="nm-lbl">Médio</div><div class="nm-val">' + dC.m + '</div></div>' +
+        '<div class="nm" style="--mc:#EF4444"><div class="nm-lbl">Crítico</div><div class="nm-val">' + dC.c + '</div></div>' +
       '</div>' +
     '</div>' +
-    '<div class="two">' +
-      '<div class="panel"><div class="pt">Saúde 360° por GP</div><div class="ch-wrap" style="height:280px"><canvas id="ch-radar"></canvas></div></div>' +
-      '<div class="panel"><div class="pt">Distribuição de Risco</div><div class="ch-wrap" style="height:280px"><canvas id="ch-doughnut"></canvas></div></div>' +
+    '<div class="panel">' +
+      '<div class="pt-sm">Eventos — Inscrições Abertas</div>' +
+      '<div style="overflow-y:auto;max-height:420px">' +
+        open.map(function(e) {
+          var rate = Math.min(100, e.fill_rate);
+          var col = rate>=100?'#3B82F6':rate>=80?'#10B981':rate>=51?'#F59E0B':'#EF4444';
+          return '<div class="ev-row"><div class="ev-head"><span class="ev-name">'+e.name+'</span><span class="ev-count" style="color:'+col+'">'+e.registered+'/'+e.capacity+'</span></div><div class="ev-loc">'+e.location+' · '+e.state+'</div><div class="prog-wrap" style="margin-top:5px"><div class="prog-fill" style="width:'+rate+'%;background:'+col+'"></div></div></div>';
+        }).join('') +
+      '</div>' +
     '</div>'
   );
-  var gps = CFG.GPS;
-  S.charts.push(new Chart(document.getElementById('ch-radar'), {
-    type:'radar',
-    data:{ labels:gps, datasets:[
-      { label:'Técnico (%)', data:gps.map(function(g){ var u=sem.filter(function(x){return x.gp.includes(g)}); return u.length?(u.reduce(function(a,b){return a+b.score},0)/u.length)*33.3:0; }), borderColor:'#10B981', backgroundColor:'rgba(16,185,129,0.1)', pointBackgroundColor:'#10B981' },
-      { label:'Risco', data:gps.map(function(g){ var u=dia.filter(function(x){return x.gp.includes(g)}); return u.length?u.reduce(function(a,b){return a+b.risk_score},0)/u.length:0; }), borderColor:'#EF4444', backgroundColor:'rgba(239,68,68,0.1)', pointBackgroundColor:'#EF4444' }
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false, scales:{ r:{ min:0,max:10,ticks:{display:false},grid:{color:'rgba(255,255,255,0.08)'},pointLabels:{color:'rgba(255,255,255,0.6)',font:{family:'DM Sans',size:11}} } }, plugins:{ legend:{labels:{color:'rgba(255,255,255,0.5)',boxWidth:10}} } }
-  }));
-  S.charts.push(new Chart(document.getElementById('ch-doughnut'), {
-    type:'doughnut',
-    data:{ labels:['Baixo','Médio','Alto','Crítico'], datasets:[{ data:[dC.b,dC.m,dC.a,dC.c], backgroundColor:['#10B981','#3B82F6','#F59E0B','#EF4444'], borderWidth:0, hoverOffset:8 }] },
-    options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{position:'bottom',labels:{color:'rgba(255,255,255,0.5)',boxWidth:10,padding:14}} } }
-  }));
 }
 
-/* ═══════════════ RENDER: HOME ═══════════════ */
+
 function renderHome() {
   var sem = S.data.semaforo, dia = S.data.diagnostico;
   var sC = { h:sem.filter(function(u){return u.rid==='healthy'}).length, c:sem.filter(function(u){return u.rid==='critical'}).length };
@@ -712,7 +898,7 @@ function renderHome() {
       { label:'Técnico (%)', data:gps.map(function(g){ var u=sem.filter(function(x){return x.gp.includes(g)}); return u.length?(u.reduce(function(a,b){return a+b.score},0)/u.length)*33.3:0; }), borderColor:'#10B981', backgroundColor:'rgba(16,185,129,0.1)', pointBackgroundColor:'#10B981' },
       { label:'Risco', data:gps.map(function(g){ var u=dia.filter(function(x){return x.gp.includes(g)}); return u.length?u.reduce(function(a,b){return a+b.risk_score},0)/u.length:0; }), borderColor:'#EF4444', backgroundColor:'rgba(239,68,68,0.1)', pointBackgroundColor:'#EF4444' }
     ]},
-    options:{ responsive:true, maintainAspectRatio:false, scales:{ r:{ min:0,max:10,ticks:{display:false},grid:{color:'rgba(255,255,255,0.08)'},pointLabels:{color:'rgba(255,255,255,0.6)',font:{family:'DM Sans',size:11}} } }, plugins:{ legend:{labels:{color:'rgba(255,255,255,0.5)',boxWidth:10}} } }
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ r:{ min:0,max:10,ticks:{display:false},grid:{color:'rgba(255,255,255,0.08)'},pointLabels:{color:'rgba(255,255,255,0.6)',font:{family:"DM Sans",size:11}} } }, plugins:{ legend:{labels:{color:'rgba(255,255,255,0.5)',boxWidth:10}} } }
   }));
 }
 
@@ -871,7 +1057,7 @@ function openModalSem(idx) {
   grid.className = 'modal-grid';
   grid.innerHTML = u.details.map(function(d) {
     var c = d.score>=2.8?'#10B981':d.score>=2.3?'#3B82F6':d.score>=2.0?'#F59E0B':'#EF4444';
-    return '<div class="mcell"><div class="mcell-lbl">'+d.label+'</div><div class="mcell-txt" style="font-family:Barlow Condensed;font-size:22px;font-weight:800;color:'+c+'">'+d.score.toFixed(1)+'</div></div>';
+    return '<div class="mcell"><div class="mcell-lbl">'+d.label+'</div><div class="mcell-txt" style="font-family:DM Sans,sans-serif;font-size:22px;font-weight:800;color:'+c+'">'+d.score.toFixed(1)+'</div></div>';
   }).join('');
   var sc = document.getElementById('modal-score'); sc.style.display='flex';
   document.getElementById('ms-lbl').textContent = 'Score Médio Operacional';
