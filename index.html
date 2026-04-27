@@ -745,12 +745,12 @@ async function syncSheets(firstRun) {
       var parsed = parseCSV(txt, key);
       if (!parsed || parsed.length === 0) continue;
       // Compare length + first/last item name as a quick fingerprint
-      var old = S.data[key];
-      var fp_old = old.length + '|' + (old[0]  ? old[0].name  : '') + '|' + (old[old.length-1]  ? old[old.length-1].name  : '');
-      var fp_new = parsed.length + '|' + (parsed[0] ? parsed[0].name : '') + '|' + (parsed[parsed.length-1] ? parsed[parsed.length-1].name : '');
-      if (fp_old !== fp_new) {
-        S.data[key] = parsed;
-        changed = true;
+      var fp_old = JSON.stringify(S.data[key]);
+var fp_new = JSON.stringify(parsed);
+if (fp_old !== fp_new) {
+  S.data[key] = parsed;
+  changed = true;
+}
       }
     } catch(e) { /* mantém dados embutidos */ }
   }
